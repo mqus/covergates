@@ -26,3 +26,6 @@ core.db
 *.zip
 !**/testdata/*.zip
 test.log
+
+# Jetbrains
+.idea
