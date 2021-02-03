@@ -5,11 +5,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/covergates/covergates/core"
 	"github.com/drone/go-scm/scm"
 	"github.com/google/go-cmp/cmp"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
+
+	"github.com/covergates/covergates/core"
 )
 
 func TestUserCreate(t *testing.T) {
@@ -234,7 +235,7 @@ func TestUserRepositories(t *testing.T) {
 	}
 
 	// test update, remove repository
-	if err := userStore.UpdateRepositories(user, repos[0:1]); err != nil {
+	if err = userStore.UpdateRepositories(user, repos[0:1]); err != nil {
 		t.Fatal()
 	}
 
@@ -248,7 +249,7 @@ func TestUserRepositories(t *testing.T) {
 	}
 
 	// test add inexistent repository
-	if err := userStore.UpdateRepositories(user, append(repos, &core.Repo{URL: "fake"})); err == nil {
+	if err = userStore.UpdateRepositories(user, append(repos, &core.Repo{URL: "fake"})); err == nil {
 		t.Fatal()
 	}
 
@@ -264,7 +265,7 @@ func TestUserRepositories(t *testing.T) {
 			SCM: string(core.Github),
 		},
 	})
-	if err := userStore.UpdateRepositories(user2, repos2); err != nil {
+	if err = userStore.UpdateRepositories(user2, repos2); err != nil {
 		t.Fatal(err)
 	}
 	result, err = userStore.ListRepositories(user2)

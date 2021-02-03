@@ -4,8 +4,9 @@ import (
 	"context"
 	"sync"
 
-	"github.com/covergates/covergates/core"
 	"github.com/drone/go-scm/scm"
+
+	"github.com/covergates/covergates/core"
 )
 
 type contentService struct {

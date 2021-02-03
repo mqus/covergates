@@ -1,9 +1,10 @@
 package request
 
 import (
-	"github.com/covergates/covergates/core"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/covergates/covergates/core"
 )
 
 const (

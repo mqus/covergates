@@ -21,7 +21,7 @@ func TestReport(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(report.Files) <= 0 {
+	if len(report.Files) == 0 {
 		t.Fatal()
 	}
 	m := make(map[string]*core.File)

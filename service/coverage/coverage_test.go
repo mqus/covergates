@@ -9,7 +9,6 @@ import (
 )
 
 func TestTrimReportFileName(t *testing.T) {
-
 	fileNames := []string{
 		"blib/main.pl", "/path/to/trim/dir/test.pl",
 	}

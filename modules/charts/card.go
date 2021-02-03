@@ -5,11 +5,12 @@ import (
 	"io"
 
 	svg "github.com/ajstarks/svgo"
-	"github.com/covergates/covergates/core"
-	"github.com/covergates/covergates/modules/charts/icons"
 	"github.com/dustin/go-humanize"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
+
+	"github.com/covergates/covergates/core"
+	"github.com/covergates/covergates/modules/charts/icons"
 )
 
 const (
@@ -55,7 +56,7 @@ func NewRepoCard(repo *core.Repo, report *core.Report) *RepoCard {
 func (c *RepoCard) start(w io.Writer) {
 	c.canvas = svg.New(w)
 	c.canvas.Start(495, 195)
-	c.canvas.Writer.Write([]byte(cssStyle))
+	_, _ = c.canvas.Writer.Write([]byte(cssStyle))
 	c.canvas.ClipPath(`id="a1"`)
 	c.canvas.Rect(0, 0, 500, 170)
 	c.canvas.ClipEnd()
@@ -74,7 +75,7 @@ func (c *RepoCard) title() {
 func (c *RepoCard) files() {
 	c.canvas.Translate(15, 75)
 	c.canvas.Group(`transform="scale(0.7) translate(0, -22)"`)
-	c.canvas.Writer.Write(icons.MustAsset(fileIcon))
+	_, _ = c.canvas.Writer.Write(icons.MustAsset(fileIcon))
 	c.canvas.Gend()
 	c.canvas.Text(32, 0, "Total Files", `font: 600 18px 'Segoe UI', sans-serif`, `fill="#e6e6e6"`)
 	p := message.NewPrinter(language.English)
@@ -86,7 +87,7 @@ func (c *RepoCard) hits() {
 	c.canvas.Translate(15, 115)
 	c.canvas.Translate(-1, -16)
 	c.canvas.Gtransform("scale(0.18)")
-	c.canvas.Writer.Write(icons.MustAsset(listIcon))
+	_, _ = c.canvas.Writer.Write(icons.MustAsset(listIcon))
 	c.canvas.Gend()
 	c.canvas.Gend()
 	c.canvas.Text(32, 0, "Hit Lines", `font: 600 18px 'Segoe UI', sans-serif`, `fill="#e6e6e6"`)
@@ -112,7 +113,7 @@ func (c *RepoCard) hitLines() int {
 func (c *RepoCard) build() {
 	c.canvas.Translate(15, 155)
 	c.canvas.Gtransform("scale(0.11) translate(-140, -160)")
-	c.canvas.Writer.Write(icons.MustAsset(gitIcon))
+	_, _ = c.canvas.Writer.Write(icons.MustAsset(gitIcon))
 	c.canvas.Gend()
 	c.canvas.Text(32, 0, "Recent Build", `font: 600 18px 'Segoe UI', sans-serif`, `fill="#e6e6e6"`)
 	c.canvas.Text(200, 0, fmt.Sprintf("%s, %s", c.repo.Branch, humanize.Time(c.report.CreatedAt)), `font: 600 18px 'Segoe UI', sans-serif`, `fill="#e6e6e6"`)
@@ -122,7 +123,7 @@ func (c *RepoCard) build() {
 func (c *RepoCard) brand() {
 	c.canvas.Translate(180, 185)
 	c.canvas.Gtransform("scale(0.08) translate(-5, -180)")
-	c.canvas.Writer.Write(icons.MustAsset(logoIcon))
+	_, _ = c.canvas.Writer.Write(icons.MustAsset(logoIcon))
 	c.canvas.Gend()
 	c.canvas.Text(30, 0, "covergates©2020", "font-size:12px")
 	c.canvas.Gend()

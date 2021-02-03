@@ -59,7 +59,7 @@ func (s *CoverageService) Report(ctx context.Context, reader io.Reader) (*core.C
 	return report, nil
 }
 
-//Find python coverage report in xml format
+// Find python coverage report in xml format
 func (s *CoverageService) Find(ctx context.Context, path string) (string, error) {
 	return common.FindReport(path, "coverage.xml")
 }

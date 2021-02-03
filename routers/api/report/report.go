@@ -9,11 +9,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/covergates/covergates/config"
 	"github.com/covergates/covergates/core"
 	"github.com/covergates/covergates/routers/api/request"
-	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
 )
 
 // HandleUpload report
@@ -55,21 +56,21 @@ func HandleUpload(
 		// get upload file
 		file, err := c.FormFile("file")
 		if err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			c.String(400, err.Error())
 			return
 		}
 
 		files := make([]string, 0)
 		if c.PostForm("files") != "" {
-			if err := json.Unmarshal([]byte(c.PostForm("files")), &files); err != nil {
-				c.Error(err)
+			if err = json.Unmarshal([]byte(c.PostForm("files")), &files); err != nil {
+				_ = c.Error(err)
 				c.String(500, err.Error())
 				return
 			}
 		}
 
-		reader, err := file.Open()
+		reader, _ := file.Open()
 		coverage, err := loadCoverageReport(
 			ctx,
 			coverageService,
@@ -94,7 +95,7 @@ func HandleUpload(
 			Commit:    commit,
 		}
 		if err := reportStore.Upload(report); err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			c.String(500, err.Error())
 			return
 		}
@@ -155,23 +156,25 @@ func HandleGet(
 		// TODO: support multiple type (language) reports in one repository
 		var err error
 		var reports []*core.Report
-		if option.Latest && option.Ref == "" {
+		switch {
+		case option.Latest && option.Ref == "":
 			var report *core.Report
 			if report, err = getLatest(reportStore, repoStore, reportID); err == nil {
 				reports = []*core.Report{report}
 			}
-		} else if option.Latest && option.Ref != "" {
+		case option.Latest && option.Ref != "":
 			var report *core.Report
 			if report, err = getRef(reportStore, reportID, option.Ref); err == nil {
 				reports = []*core.Report{report}
 			}
-		} else if option.Ref != "" {
+		case option.Ref != "":
 			reports, err = reportStore.List(reportID, option.Ref)
-		} else {
+		default:
 			reports, err = getAll(reportStore, reportID)
 		}
+
 		if err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			c.JSON(404, []*core.Report{})
 			return
 		}
@@ -214,7 +217,6 @@ func HandleGetTreeMap(
 		}
 		c.Header("Cache-Control", "max-age=600")
 		c.Data(200, "image/svg+xml", buffer.Bytes())
-		return
 	}
 }
 
@@ -250,7 +252,6 @@ func HandleGetCard(
 		}
 		c.Header("Cache-Control", "max-age=600")
 		c.Data(200, "image/svg+xml", buffer.Bytes())
-		return
 	}
 }
 
@@ -289,6 +290,10 @@ func HandleComment(
 			return
 		}
 		client, err := service.Client(repo.SCM)
+		if err != nil {
+			c.String(400, "cannot new git client")
+			return
+		}
 		pr, err := client.PullRequests().Find(ctx, user, repo.FullName(), number)
 		if err != nil {
 			c.String(400, "cannot find pull request")
@@ -324,13 +329,14 @@ func HandleComment(
 			target.Reference,
 		))
 
-		if _, err := io.Copy(buf, r); err != nil {
+		if _, err = io.Copy(buf, r); err != nil {
 			c.String(500, err.Error())
 			return
 		}
 
-		if comment, err := reportStore.FindComment(&core.Report{ReportID: reportID}, number); err == nil {
-			client.PullRequests().RemoveComment(ctx, user, repo.FullName(), number, comment.Comment)
+		comment, err := reportStore.FindComment(&core.Report{ReportID: reportID}, number)
+		if err == nil {
+			_ = client.PullRequests().RemoveComment(ctx, user, repo.FullName(), number, comment.Comment)
 		}
 
 		commentID, err := client.PullRequests().CreateComment(
@@ -338,14 +344,14 @@ func HandleComment(
 			user,
 			repo.FullName(),
 			number,
-			string(buf.Bytes()),
+			buf.String(),
 		)
 		log.Println(commentID)
 		if err != nil {
 			c.String(500, err.Error())
 			return
 		}
-		comment := &core.ReportComment{
+		comment = &core.ReportComment{
 			Comment: commentID,
 			Number:  number,
 		}
@@ -379,10 +385,7 @@ func hasPermission(
 		return false
 	}
 	_, err = client.Repositories().Find(c.Request.Context(), user, repo.FullName())
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }
 
 func getLatest(reportStore core.ReportStore, repoStore core.RepoStore, reportID string) (*core.Report, error) {
@@ -441,6 +444,7 @@ func loadCoverageReport(
 }
 
 // getGitRepository with given Repo
+// nolint:deadcode,unused
 func getGitRepository(
 	ctx context.Context,
 	store core.RepoStore,

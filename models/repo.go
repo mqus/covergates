@@ -5,8 +5,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/covergates/covergates/core"
 	"gorm.io/gorm"
+
+	"github.com/covergates/covergates/core"
 )
 
 var errEmptyRepoFiled = errors.New("repository must have SCM and URL filed")
@@ -132,7 +133,7 @@ func (store *RepoStore) updateOrCreate(session *gorm.DB, repo *core.Repo) error 
 func (store *RepoStore) BatchUpdateOrCreate(repos []*core.Repo) error {
 	session := store.DB.Session()
 	var err error
-	session.Transaction(func(tx *gorm.DB) error {
+	_ = session.Transaction(func(tx *gorm.DB) error {
 		for _, repo := range repos {
 			if err = store.updateOrCreate(tx, repo); err != nil {
 				return err

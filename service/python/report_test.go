@@ -6,9 +6,10 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
+
 	"github.com/covergates/covergates/core"
 	"github.com/covergates/covergates/service/python"
-	"github.com/google/go-cmp/cmp"
 )
 
 func TestReport(t *testing.T) {
@@ -17,12 +18,14 @@ func TestReport(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer file.Close()
+	defer func() {
+		_ = file.Close()
+	}()
 	report, err := service.Report(context.Background(), file)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(report.Files) <= 0 || report.StatementCoverage <= 0 {
+	if len(report.Files) == 0 || report.StatementCoverage <= 0 {
 		t.Fatal()
 	}
 	m := make(map[string]bool)
@@ -38,7 +41,6 @@ func TestReport(t *testing.T) {
 			t.Fatalf("cannot find %s", target)
 		}
 	}
-
 }
 
 func TestFind(t *testing.T) {
@@ -117,5 +119,4 @@ func TestReportSimple(t *testing.T) {
 			t.Fatal(diff)
 		}
 	}
-
 }

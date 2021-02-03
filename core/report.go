@@ -71,7 +71,7 @@ type ReportService interface {
 
 // StatementCoverage of the report
 func (report *Report) StatementCoverage() float64 {
-	if len(report.Coverages) <= 0 {
+	if len(report.Coverages) == 0 {
 		return 0.0
 	}
 	sum := 0.0
@@ -93,7 +93,7 @@ func (report *Report) Find(t ReportType) (*CoverageReport, bool) {
 
 // ComputeStatementCoverage of the report
 func (cov *CoverageReport) ComputeStatementCoverage() float64 {
-	if len(cov.Files) <= 0 {
+	if len(cov.Files) == 0 {
 		return 0
 	}
 	sum := 0.0

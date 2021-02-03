@@ -27,10 +27,11 @@ func (s *Service) Create(ctx context.Context, repo *core.Repo) error {
 	if err != nil {
 		return err
 	}
-	if hook, err := s.RepoStore.FindHook(repo); hook != nil && err == nil {
-		client.Repositories().RemoveHook(ctx, user, repo.FullName(), hook)
+	hook, err := s.RepoStore.FindHook(repo)
+	if hook != nil && err == nil {
+		_ = client.Repositories().RemoveHook(ctx, user, repo.FullName(), hook)
 	}
-	hook, err := client.Repositories().CreateHook(ctx, user, repo.FullName())
+	hook, err = client.Repositories().CreateHook(ctx, user, repo.FullName())
 	if err != nil {
 		return err
 	}
@@ -59,10 +60,11 @@ func (s *Service) Resolve(ctx context.Context, repo *core.Repo, hook core.HookEv
 	if hook == nil {
 		return errHookEventNotSupport
 	}
-	switch event := hook.(type) {
-	case *core.PullRequestHook:
+
+	if event, ok := hook.(*core.PullRequestHook); ok {
 		return s.resolvePullRequest(ctx, repo, event)
 	}
+
 	return nil
 }
 
@@ -112,7 +114,7 @@ func (s *Service) resolvePullRequest(ctx context.Context, repo *core.Repo, hook 
 	}
 	report.Reference = hook.Target
 	report.Commit = hook.Commit
-	// TODO: need to use transation to prevent error occur in the middle
+	// TODO: need to use transition to prevent error occur in the middle
 	if err := s.ReportStore.Upload(report); err != nil {
 		return err
 	}

@@ -3,9 +3,10 @@ package repo
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/covergates/covergates/config"
 	"github.com/covergates/covergates/core"
-	"github.com/sirupsen/logrus"
 )
 
 // Service of repository

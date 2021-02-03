@@ -14,17 +14,18 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/covergates/covergates/core"
-	"github.com/covergates/covergates/mock"
-	"github.com/covergates/covergates/modules/charts"
-	"github.com/covergates/covergates/routers/api/request"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/covergates/covergates/core"
+	"github.com/covergates/covergates/mock"
+	"github.com/covergates/covergates/modules/charts"
+	"github.com/covergates/covergates/routers/api/request"
 )
 
-func testRequest(r *gin.Engine, req *http.Request, f func(w *httptest.ResponseRecorder)) {
+func testRequest(r http.Handler, req *http.Request, f func(w *httptest.ResponseRecorder)) {
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	f(w)
@@ -52,7 +53,7 @@ func addFormFile(w *multipart.Writer, k, name string, r io.Reader) {
 func createForm(writer io.Writer, m map[string]string) *multipart.Writer {
 	w := multipart.NewWriter(writer)
 	for k, v := range m {
-		w.WriteField(k, v)
+		_ = w.WriteField(k, v)
 	}
 	return w
 }
@@ -117,12 +118,13 @@ func TestUpload(t *testing.T) {
 			},
 		)
 		addFormFile(w, "file", "cover_db.zip", bytes.NewBuffer([]byte("mock")))
-		w.Close()
+		_ = w.Close()
 
 		req, _ := http.NewRequest("POST", "/reports/1234", buffer)
 		req.Header.Set("Content-Type", w.FormDataContentType())
 		testRequest(r, req, func(w *httptest.ResponseRecorder) {
 			rst := w.Result()
+			defer rst.Body.Close()
 			if rst.StatusCode != 200 {
 				t.Fail()
 			}
@@ -141,6 +143,7 @@ func TestUpload(t *testing.T) {
 		req, _ := http.NewRequest("POST", "/reports/1234", nil)
 		testRequest(r, req, func(w *httptest.ResponseRecorder) {
 			rst := w.Result()
+			defer rst.Body.Close()
 			if rst.StatusCode != 400 {
 				t.Fail()
 			}
@@ -168,9 +171,10 @@ func TestProtectReport(t *testing.T) {
 				c.Abort()
 			}, mockRepoStore, mockSCMService),
 		)
-		request, _ := http.NewRequest("POST", "/", nil)
-		testRequest(r, request, func(w *httptest.ResponseRecorder) {
+		req, _ := http.NewRequest("POST", "/", nil)
+		testRequest(r, req, func(w *httptest.ResponseRecorder) {
 			response := w.Result()
+			defer response.Body.Close()
 			if response.StatusCode != 401 {
 				t.Fatal()
 			}
@@ -190,9 +194,10 @@ func TestProtectReport(t *testing.T) {
 				c.Abort()
 			}, mockRepoStore, mockSCMService),
 		)
-		request, _ := http.NewRequest("POST", "/", nil)
-		testRequest(r, request, func(w *httptest.ResponseRecorder) {
+		req, _ := http.NewRequest("POST", "/", nil)
+		testRequest(r, req, func(w *httptest.ResponseRecorder) {
 			response := w.Result()
+			defer response.Body.Close()
 			if response.StatusCode != 200 {
 				t.Fatal()
 			}
@@ -216,13 +221,13 @@ func TestGetRepo(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/reports/1234/repo", nil)
 	testRequest(r, req, func(w *httptest.ResponseRecorder) {
 		rst := w.Result()
+		defer rst.Body.Close()
 		if rst.StatusCode != 200 {
 			t.Fail()
 		}
-		defer rst.Body.Close()
 		data, _ := ioutil.ReadAll(rst.Body)
 		rtnRepo := &core.Repo{}
-		json.Unmarshal(data, rtnRepo)
+		_ = json.Unmarshal(data, rtnRepo)
 		if !reflect.DeepEqual(repo, rtnRepo) {
 			t.Fail()
 		}
@@ -266,12 +271,13 @@ func TestGet(t *testing.T) {
 	req.URL.RawQuery = query.Encode()
 	testRequest(r, req, func(w *httptest.ResponseRecorder) {
 		rst := w.Result()
+		defer rst.Body.Close()
 		if rst.StatusCode != 200 {
 			t.Fail()
 		}
 		var reports []*core.Report
 		data, _ := ioutil.ReadAll(rst.Body)
-		json.Unmarshal(data, &reports)
+		_ = json.Unmarshal(data, &reports)
 		if len(reports) < 1 || reports[0].ReportID != "1234" {
 			t.Fail()
 		}
@@ -319,6 +325,7 @@ func TestGetPrivate(t *testing.T) {
 
 	testRequest(r, req, func(w *httptest.ResponseRecorder) {
 		rst := w.Result()
+		defer rst.Body.Close()
 		if rst.StatusCode != 401 {
 			t.Fail()
 		}
@@ -332,11 +339,11 @@ func TestGetPrivate(t *testing.T) {
 	r.GET("/reports/:id", HandleGet(reportStore, repoStore, service))
 	testRequest(r, req, func(w *httptest.ResponseRecorder) {
 		rst := w.Result()
+		defer rst.Body.Close()
 		if rst.StatusCode != 401 {
 			t.Fail()
 		}
 	})
-
 }
 
 func TestGetNotFound(t *testing.T) {
@@ -366,6 +373,7 @@ func TestGetNotFound(t *testing.T) {
 	req.URL.RawQuery = query.Encode()
 	testRequest(r, req, func(w *httptest.ResponseRecorder) {
 		rst := w.Result()
+		defer rst.Body.Close()
 		if rst.StatusCode != 404 {
 			t.Fail()
 		}
@@ -394,7 +402,7 @@ func TestGetTreeMap(t *testing.T) {
 		Reference: "master",
 		Commit:    "old",
 	}
-	new := &core.Report{
+	newReport := &core.Report{
 		Coverages: []*core.CoverageReport{
 			{
 				Type: core.ReportGo,
@@ -411,8 +419,8 @@ func TestGetTreeMap(t *testing.T) {
 
 	reportStore.EXPECT().Find(gomock.Eq(
 		&core.Report{
-			Commit:   new.Reference,
-			ReportID: new.ReportID,
+			Commit:   newReport.Reference,
+			ReportID: newReport.ReportID,
 		},
 	)).Return(nil, fmt.Errorf(""))
 
@@ -423,17 +431,19 @@ func TestGetTreeMap(t *testing.T) {
 
 	reportStore.EXPECT().Find(gomock.Eq(&core.Report{
 		ReportID:  reportID,
-		Reference: new.Reference,
-	})).Return(new, nil)
+		Reference: newReport.Reference,
+	})).Return(newReport, nil)
 	chartService.EXPECT().CoverageDiffTreeMap(
 		gomock.Eq(old),
-		gomock.Eq(new),
+		gomock.Eq(newReport),
 	).Return(chart)
 	chart.EXPECT().Render(gomock.Any()).Do(
 		func(w io.Writer) {
 			file, _ := os.Open(filepath.Join("testdata", "treemap.svg"))
-			defer file.Close()
-			io.Copy(w, file)
+			defer func() {
+				_ = file.Close()
+			}()
+			_, _ = io.Copy(w, file)
 		},
 	).Return(nil)
 
@@ -447,18 +457,21 @@ func TestGetTreeMap(t *testing.T) {
 	req, _ := http.NewRequest("GET", fmt.Sprintf(
 		"/reports/%s/treemap/%s",
 		reportID,
-		new.Reference,
+		newReport.Reference,
 	), nil)
 	testRequest(r, req, func(w *httptest.ResponseRecorder) {
 		rst := w.Result()
+		defer rst.Body.Close()
 		if rst.StatusCode != 200 {
 			t.Fail()
 		}
 		file, _ := os.Open(filepath.Join("testdata", "treemap.svg"))
-		defer file.Close()
+		defer func() {
+			_ = file.Close()
+		}()
 		expect, _ := ioutil.ReadAll(file)
 		data, _ := ioutil.ReadAll(rst.Body)
-		if len(data) <= 0 || bytes.Compare(data, expect) != 0 {
+		if len(data) == 0 || !bytes.Equal(data, expect) {
 			t.Fail()
 		}
 	})
@@ -505,6 +518,7 @@ func TestGetCard(t *testing.T) {
 
 	testRequest(r, req, func(w *httptest.ResponseRecorder) {
 		result := w.Result()
+		defer result.Body.Close()
 		if result.StatusCode != 200 {
 			t.Fatal()
 		}

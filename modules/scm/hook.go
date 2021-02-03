@@ -4,9 +4,10 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/drone/go-scm/scm"
+
 	"github.com/covergates/covergates/config"
 	"github.com/covergates/covergates/core"
-	"github.com/drone/go-scm/scm"
 )
 
 var errWebhookNotSuport = errors.New("webhook not support")
@@ -18,16 +19,15 @@ type webhookService struct {
 }
 
 func (service *webhookService) Parse(req *http.Request) (core.HookEvent, error) {
-	config := service.config
+	cfg := service.config
 	hook, err := service.client.Webhooks.Parse(req, func(webhook scm.Webhook) (string, error) {
-		return config.Server.Secret, nil
+		return cfg.Server.Secret, nil
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	switch event := hook.(type) {
-	case *scm.PullRequestHook:
+	if event, ok := hook.(*scm.PullRequestHook); ok {
 		if event.Action == scm.ActionMerge {
 			return &core.PullRequestHook{
 				Number: event.PullRequest.Number,
@@ -46,6 +46,7 @@ func (service *webhookService) Parse(req *http.Request) (core.HookEvent, error) 
 			}, nil
 		}
 	}
+
 	return nil, errWebhookNotSuport
 }
 

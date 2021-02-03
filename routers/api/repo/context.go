@@ -1,8 +1,9 @@
 package repo
 
 import (
-	"github.com/covergates/covergates/core"
 	"github.com/gin-gonic/gin"
+
+	"github.com/covergates/covergates/core"
 )
 
 const keyRepo = "repository"

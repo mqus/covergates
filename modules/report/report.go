@@ -143,9 +143,7 @@ func toFilesMap(r *core.Report) filesMap {
 func fileSlice(r *core.Report) []*core.File {
 	s := make([]*core.File, 0)
 	for _, coverage := range r.Coverages {
-		for _, file := range coverage.Files {
-			s = append(s, file)
-		}
+		s = append(s, coverage.Files...)
 	}
 	return s
 }

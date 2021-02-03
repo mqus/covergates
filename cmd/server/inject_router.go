@@ -1,13 +1,15 @@
 package main
 
 import (
+	"github.com/google/wire"
+
 	"github.com/covergates/covergates/config"
 	"github.com/covergates/covergates/core"
 	"github.com/covergates/covergates/modules/login"
 	"github.com/covergates/covergates/routers"
-	"github.com/google/wire"
 )
 
+// nolint:deadcode,varcheck,unused
 var routerSet = wire.NewSet(
 	provideLogin,
 	provideRouter,

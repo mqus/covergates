@@ -30,7 +30,6 @@ var (
 
 // Report of lcov
 func (s *CoverageService) Report(ctx context.Context, reader io.Reader) (*core.CoverageReport, error) {
-
 	scanner := bufio.NewScanner(reader)
 	files := make([]*core.File, 0)
 	var cf *core.File
@@ -87,7 +86,7 @@ func (s *CoverageService) Report(ctx context.Context, reader io.Reader) (*core.C
 	return report, nil
 }
 
-//Find lcov coverage report
+// Find lcov coverage report
 func (s *CoverageService) Find(ctx context.Context, path string) (string, error) {
 	fi, err := os.Lstat(path)
 	if err != nil {

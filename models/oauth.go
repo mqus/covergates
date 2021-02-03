@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/covergates/covergates/core"
 	"gorm.io/gorm"
+
+	"github.com/covergates/covergates/core"
 )
 
 // OAuthToken information

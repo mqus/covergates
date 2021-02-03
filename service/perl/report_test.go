@@ -30,9 +30,9 @@ func makeTree(t *testing.T, tree *Node) {
 				t.Errorf("makeTree: %v", err)
 				return
 			}
-			fd.Close()
+			_ = fd.Close()
 		} else {
-			os.Mkdir(path, 0770)
+			_ = os.Mkdir(path, 0770)
 		}
 	})
 }
@@ -46,7 +46,9 @@ func unzip(file, folder string) error {
 	if err != nil {
 		return err
 	}
-	defer os.Chdir(cwd)
+	defer func() {
+		_ = os.Chdir(cwd)
+	}()
 	if err := os.Chdir(folder); err != nil {
 		return err
 	}
@@ -88,7 +90,7 @@ func TestPerlCoverageService(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	if len(report.Files) <= 0 {
+	if len(report.Files) == 0 {
 		t.Fail()
 		return
 	}
@@ -111,7 +113,7 @@ func TestPerlCoverageWithStringStatementHits(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	if len(report.Files) <= 0 {
+	if len(report.Files) == 0 {
 		t.Fail()
 		return
 	}
@@ -138,7 +140,9 @@ func TestFindReport(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() {
+		os.RemoveAll(tmpDir)
+	}()
 	originDir, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)
@@ -146,7 +150,9 @@ func TestFindReport(t *testing.T) {
 	if err = os.Chdir(tmpDir); err != nil {
 		t.Fatal(err)
 	}
-	defer os.Chdir(originDir)
+	defer func() {
+		_ = os.Chdir(originDir)
+	}()
 	makeTree(t, tree)
 	service := &CoverageService{}
 	report, err := service.Find(context.Background(), tree.name)
@@ -166,9 +172,11 @@ func TestOpenReport(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() {
+		_ = os.RemoveAll(tmpDir)
+	}()
 
-	if err := unzip(file, tmpDir); err != nil {
+	if err = unzip(file, tmpDir); err != nil {
 		t.Fatal(err)
 	}
 
@@ -181,10 +189,10 @@ func TestOpenReport(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if report.StatementCoverage <= 0 {
+	if report.StatementCoverage == 0 {
 		t.Fail()
 	}
-	if len(report.Files) <= 0 {
+	if len(report.Files) == 0 {
 		t.Fail()
 	}
 }

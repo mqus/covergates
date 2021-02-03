@@ -6,8 +6,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/covergates/covergates/cmd/cli/modules"
 	"github.com/urfave/cli/v2"
+
+	"github.com/covergates/covergates/cmd/cli/modules"
 )
 
 // Command for comment on pull request
@@ -44,19 +45,27 @@ func comment(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+
 	client := modules.GetHTTPClient(c)
 	respond, err := client.Do(req)
 	if err != nil {
 		return err
 	}
-	defer respond.Body.Close()
-	text, err := ioutil.ReadAll(respond.Body)
+
+	var text []byte
+	defer func() {
+		_ = respond.Body.Close()
+		if respond.StatusCode >= 400 {
+			log.Fatal(string(text))
+		} else {
+			log.Println(string(text))
+		}
+	}()
+
+	text, err = ioutil.ReadAll(respond.Body)
 	if err != nil {
 		return err
-	} else if respond.StatusCode >= 400 {
-		log.Fatal(string(text))
-	} else {
-		log.Println(string(text))
 	}
+
 	return nil
 }

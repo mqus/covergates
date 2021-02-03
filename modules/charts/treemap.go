@@ -5,6 +5,7 @@ import (
 	"sort"
 
 	svgchart "github.com/blueworrybear/svg-charts"
+
 	"github.com/covergates/covergates/core"
 )
 
@@ -44,9 +45,7 @@ func NewCoverageDiffTreeMap(old, new *core.Report) *CoverageDiffTreeMap {
 func reportFileSlice(r *core.Report) []*core.File {
 	s := make([]*core.File, 0)
 	for _, cov := range r.Coverages {
-		for _, file := range cov.Files {
-			s = append(s, file)
-		}
+		s = append(s, cov.Files...)
 	}
 	return s
 }

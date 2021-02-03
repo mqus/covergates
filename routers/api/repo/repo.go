@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/gin-gonic/gin"
+	"golang.org/x/net/context"
+
 	"github.com/covergates/covergates/config"
 	"github.com/covergates/covergates/core"
 	"github.com/covergates/covergates/routers/api/request"
-	"github.com/gin-gonic/gin"
-	"golang.org/x/net/context"
 )
 
 // HandleCreate a repository
@@ -31,11 +32,12 @@ func HandleCreate(store core.RepoStore, service core.SCMService) gin.HandlerFunc
 		}
 
 		if repo.Branch == "" {
-			client, err := service.Client(repo.SCM)
+			gitClient, err := service.Client(repo.SCM)
 			if err != nil {
 				c.String(500, err.Error())
+				return
 			}
-			scmRepo, err := client.Repositories().Find(c.Request.Context(), user, repo.FullName())
+			scmRepo, err := gitClient.Repositories().Find(c.Request.Context(), user, repo.FullName())
 			if err != nil {
 				c.String(500, err.Error())
 				return
@@ -74,23 +76,22 @@ func HandleReportIDRenew(store core.RepoStore, service core.SCMService) gin.Hand
 		}
 		client, err := service.Client(scm)
 		if err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			c.String(500, err.Error())
 			return
 		}
 		repo.ReportID = client.Repositories().NewReportID(repo)
 		if err := store.Update(repo); err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			c.String(500, err.Error())
 			return
 		}
 		if err := store.UpdateCreator(repo, user); err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			c.String(500, err.Error())
 			return
 		}
 		c.JSON(200, repo)
-		return
 	}
 }
 
@@ -216,7 +217,7 @@ func HandleListSCM(service core.SCMService, store core.RepoStore) gin.HandlerFun
 		ctx := c.Request.Context()
 		client, err := service.Client(scm)
 		if err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			c.JSON(500, []*core.Repo{})
 			return
 		}
@@ -250,19 +251,19 @@ func HandleGetFiles(service core.SCMService) gin.HandlerFunc {
 		}
 		client, err := service.Client(scm)
 		if err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			c.JSON(500, []string{})
 			return
 		}
 		ref, err := getRef(c, client, user)
 		if err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			c.JSON(500, []string{})
 			return
 		}
 		files, err := client.Contents().ListAllFiles(ctx, user, repoName, ref)
 		if err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			c.JSON(500, []string{})
 			return
 		}
@@ -293,17 +294,17 @@ func HandleGetFileContent(service core.SCMService) gin.HandlerFunc {
 		}
 		client, err := service.Client(scm)
 		if err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			c.String(500, "")
 			return
 		}
 		ref, err := getRef(c, client, user)
 		if err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			c.String(500, "")
 			return
 		}
-		content, err := client.Contents().Find(ctx, user, repoName, filePath, ref)
+		content, _ := client.Contents().Find(ctx, user, repoName, filePath, ref)
 		c.Data(200, "text/plain", content)
 	}
 }
@@ -329,10 +330,8 @@ func HandleGetSetting(store core.RepoStore) gin.HandlerFunc {
 		}
 		setting, err := store.Setting(repo)
 		if err != nil {
-			if err != nil {
-				c.JSON(404, &core.RepoSetting{})
-				return
-			}
+			c.JSON(404, &core.RepoSetting{})
+			return
 		}
 		c.JSON(200, setting)
 	}
@@ -362,11 +361,12 @@ func HandleUpdateSetting(store core.RepoStore, service core.SCMService) gin.Hand
 			c.JSON(500, setting)
 			return
 		}
-		client, err := service.Client(repo.SCM)
+		gitClient, err := service.Client(repo.SCM)
 		if err != nil {
 			c.JSON(500, setting)
+			return
 		}
-		if !client.Repositories().IsAdmin(ctx, user, repo.FullName()) && user.Login != creator.Login {
+		if !gitClient.Repositories().IsAdmin(ctx, user, repo.FullName()) && user.Login != creator.Login {
 			c.JSON(401, setting)
 			return
 		}
@@ -412,7 +412,7 @@ func HandleListCommits(service core.SCMService) gin.HandlerFunc {
 			commits, err = client.Git().ListCommitsByRef(ctx, user, repo.FullName(), c.Query("ref"))
 		}
 		if err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			c.JSON(500, []*core.Commit{})
 		}
 		c.JSON(200, commits)
@@ -433,14 +433,14 @@ func HandleListBranches(service core.SCMService) gin.HandlerFunc {
 		user := request.MustGetUserFrom(c)
 		client, err := service.Client(repo.SCM)
 		if err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			c.JSON(500, []string{})
 			return
 		}
 		ctx := c.Request.Context()
 		branches, err := client.Git().ListBranches(ctx, user, repo.FullName())
 		if err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			c.JSON(500, []string{})
 			return
 		}

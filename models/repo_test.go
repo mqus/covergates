@@ -4,9 +4,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/covergates/covergates/core"
 	"github.com/google/go-cmp/cmp"
 	"gorm.io/gorm"
+
+	"github.com/covergates/covergates/core"
 )
 
 func toCoreRepoSlice(repos []*Repo) []*core.Repo {
@@ -108,7 +109,7 @@ func TestRepoUpdateOrCreate(t *testing.T) {
 	}
 
 	// should not update report id
-	if err := store.UpdateOrCreate(&core.Repo{SCM: repo.SCM, URL: repo.URL, Private: true}); err != nil {
+	if err = store.UpdateOrCreate(&core.Repo{SCM: repo.SCM, URL: repo.URL, Private: true}); err != nil {
 		t.Fatal()
 	}
 
@@ -123,7 +124,7 @@ func TestRepoUpdateOrCreate(t *testing.T) {
 
 	// should update private
 	repo.Private = false
-	if err := store.UpdateOrCreate(repo); err != nil {
+	if err = store.UpdateOrCreate(repo); err != nil {
 		t.Fatal()
 	}
 	result, err = store.Find(&core.Repo{URL: repo.URL})
@@ -285,7 +286,7 @@ func TestRepoSetting(t *testing.T) {
 
 	setting1.Filters = []string{"a"}
 
-	if err := store.UpdateSetting(repo1, setting1); err != nil {
+	if err = store.UpdateSetting(repo1, setting1); err != nil {
 		t.Error(err)
 		return
 	}
@@ -334,7 +335,7 @@ func TestPrivateRepository(t *testing.T) {
 
 	coreRepo.Private = true
 
-	if err := store.Update(coreRepo); err != nil {
+	if err = store.Update(coreRepo); err != nil {
 		t.Fatal(err)
 	}
 

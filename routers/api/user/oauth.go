@@ -4,9 +4,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/covergates/covergates/core"
 	"github.com/covergates/covergates/routers/api/request"
-	"github.com/gin-gonic/gin"
 )
 
 // Token for API
@@ -33,7 +34,7 @@ func HandleCreateToken(service core.OAuthService) gin.HandlerFunc {
 		ctx := service.WithUser(c.Request.Context(), user)
 		token, err := service.CreateToken(ctx, tokenName)
 		if err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			c.String(500, "")
 			return
 		}
@@ -56,7 +57,7 @@ func HandleListTokens(service core.OAuthService) gin.HandlerFunc {
 		ctx := service.WithUser(c.Request.Context(), user)
 		tokens, err := service.ListTokens(ctx)
 		if err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			c.JSON(500, []*Token{})
 			return
 		}
@@ -87,19 +88,19 @@ func HandleDeleteToken(service core.OAuthService, store core.OAuthStore) gin.Han
 		}
 		id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 		if err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			c.JSON(400, &Token{})
 			return
 		}
 		token, err := store.Find(&core.OAuthToken{ID: uint(id)})
 		if err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			c.JSON(500, &Token{})
 			return
 		}
 		ctx := service.WithUser(c.Request.Context(), user)
 		if err := service.DeleteToken(ctx, token); err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			c.JSON(500, &Token{})
 			return
 		}

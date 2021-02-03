@@ -8,12 +8,13 @@ import (
 	"log"
 	"os"
 
+	"github.com/urfave/cli/v2"
+
 	"github.com/covergates/covergates/cmd/cli/modules"
 	"github.com/covergates/covergates/core"
 	"github.com/covergates/covergates/modules/git"
 	"github.com/covergates/covergates/modules/util"
 	"github.com/covergates/covergates/service/coverage"
-	"github.com/urfave/cli/v2"
 )
 
 // Command for upload report
@@ -48,7 +49,7 @@ var Command = &cli.Command{
 
 func upload(c *cli.Context) error {
 	if c.NArg() <= 0 {
-		cli.ShowCommandHelp(c, "upload")
+		_ = cli.ShowCommandHelp(c, "upload")
 		return fmt.Errorf("report path is required")
 	}
 
@@ -61,8 +62,8 @@ func upload(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	git := &git.Service{}
-	repo, err := git.PlainOpen(c.Context, cwd)
+	gitService := &git.Service{}
+	repo, err := gitService.PlainOpen(c.Context, cwd)
 	if err != nil {
 		return err
 	}
@@ -110,13 +111,17 @@ func upload(c *cli.Context) error {
 		return err
 	}
 
-	defer respond.Body.Close()
-	text, err := ioutil.ReadAll(respond.Body)
-	if respond.StatusCode >= 400 {
-		log.Fatal(string(text))
-	}
-	log.Println(string(text))
-	return nil
+	var text []byte
+	defer func() {
+		_ = respond.Body.Close()
+		if respond.StatusCode >= 400 {
+			log.Fatal(string(text))
+		} else {
+			log.Println(string(text))
+		}
+	}()
+	text, err = ioutil.ReadAll(respond.Body)
+	return err
 }
 
 func findReportData(ctx context.Context, reportType, path string) ([]byte, error) {

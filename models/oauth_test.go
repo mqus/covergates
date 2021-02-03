@@ -4,9 +4,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/covergates/covergates/core"
 	"github.com/drone/go-scm/scm"
 	"github.com/google/go-cmp/cmp"
+
+	"github.com/covergates/covergates/core"
 )
 
 func cmpTokens(token1, token2 *core.OAuthToken) string {
@@ -38,17 +39,20 @@ func TestOAuth(t *testing.T) {
 	store := &OAuthStore{DB: db}
 	userStore := &UserStore{DB: db}
 
-	userStore.Create(core.Gitea, &scm.User{
+	_ = userStore.Create(core.Gitea, &scm.User{
 		Login: "oauth_user",
 	}, &core.Token{})
 
-	userStore.Create(core.Gitea, &scm.User{
+	_ = userStore.Create(core.Gitea, &scm.User{
 		Login: "oauth_user2",
 	}, &core.Token{})
 
 	user, err := userStore.FindByLogin("oauth_user")
-	user2, err := userStore.FindByLogin("oauth_user2")
+	if err != nil {
+		t.Fatal(err)
+	}
 
+	user2, err := userStore.FindByLogin("oauth_user2")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -66,7 +70,7 @@ func TestOAuth(t *testing.T) {
 	}
 
 	for _, token := range tokens {
-		if err := store.Create(token); err != nil {
+		if err = store.Create(token); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -92,7 +96,7 @@ func TestOAuth(t *testing.T) {
 
 	// test list
 
-	store.Create(&core.OAuthToken{
+	_ = store.Create(&core.OAuthToken{
 		Code:  "code2",
 		Owner: user2,
 	})
@@ -116,10 +120,10 @@ func TestOAuth(t *testing.T) {
 	}
 
 	// test delete
-	if err := store.Delete(&core.OAuthToken{Code: "code"}); err != nil {
+	if err = store.Delete(&core.OAuthToken{Code: "code"}); err != nil {
 		t.Fatal(err)
 	}
-	token, err = store.Find(&core.OAuthToken{Code: "code"})
+	_, err = store.Find(&core.OAuthToken{Code: "code"})
 	if err == nil {
 		t.Fatal("fail to delete token")
 	}
@@ -132,5 +136,4 @@ func TestOAuth(t *testing.T) {
 		t.Log("delete to many tokens")
 		t.Fatal(diff)
 	}
-
 }

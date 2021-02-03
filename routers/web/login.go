@@ -4,11 +4,12 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/covergates/covergates/config"
-	"github.com/covergates/covergates/core"
 	"github.com/drone/go-login/login"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/covergates/covergates/config"
+	"github.com/covergates/covergates/core"
 )
 
 const (
@@ -39,7 +40,7 @@ func HandleLogin(
 		user := session.GetUser(c)
 		if session.ShouldBindUser(c) {
 			user, err = client.Users().Bind(ctx, user, token)
-			session.EndBindUser(c)
+			_ = session.EndBindUser(c)
 		} else {
 			user, err = createOrUpdateUser(ctx, client, token)
 		}
@@ -59,11 +60,12 @@ func HandleLogin(
 
 func createOrUpdateUser(ctx context.Context, client core.Client, token *core.Token) (*core.User, error) {
 	user, err := client.Users().Find(ctx, token)
-	if err != nil {
+	if err != nil || user == nil {
 		user, err = client.Users().Create(ctx, token)
 	} else {
 		user, err = client.Users().Update(ctx, token)
 	}
+
 	return user, err
 }
 
@@ -75,7 +77,7 @@ func MiddlewareLogin(scm core.SCMProvider, m core.LoginMiddleware) gin.HandlerFu
 			ctx := r.Context()
 			err := login.ErrorFrom(ctx)
 			if err != nil {
-				c.Error(err)
+				_ = c.Error(err)
 				c.Abort()
 				return
 			}
@@ -102,6 +104,6 @@ func MiddlewareBindUser(session core.Session) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		session.StartBindUser(c)
+		_ = session.StartBindUser(c)
 	}
 }

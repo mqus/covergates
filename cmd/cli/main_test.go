@@ -20,12 +20,11 @@ func TestUpload(t *testing.T) {
 		}
 	}))
 	defer ts.Close()
-	os.Setenv("API_URL", ts.URL)
-	os.Setenv("REPORT_ID", "123")
-	os.Setenv("GATES_TOKEN", "token")
+	_ = os.Setenv("API_URL", ts.URL)
+	_ = os.Setenv("REPORT_ID", "123")
+	_ = os.Setenv("GATES_TOKEN", "token")
 	args := []string{"", "upload", "--type", "go", "./testdata/coverage.out"}
 	if err := app.Run(args); err != nil {
 		t.Fatal(err)
 	}
-
 }

@@ -1,10 +1,11 @@
 package git
 
 import (
-	"github.com/covergates/covergates/core"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
+
+	"github.com/covergates/covergates/core"
 )
 
 type repository struct {
@@ -33,7 +34,7 @@ func (repo *repository) ListAllFiles(commit string) ([]string, error) {
 		return nil, err
 	}
 	files := make([]string, 0)
-	tree.Files().ForEach(func(f *object.File) error {
+	_ = tree.Files().ForEach(func(f *object.File) error {
 		files = append(files, f.Name)
 		return nil
 	})

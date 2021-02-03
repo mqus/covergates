@@ -1,12 +1,13 @@
 package login
 
 import (
-	"github.com/covergates/covergates/config"
-	"github.com/covergates/covergates/core"
 	"github.com/drone/go-login/login"
 	"github.com/drone/go-login/login/gitea"
 	"github.com/drone/go-login/login/github"
 	"github.com/drone/go-login/login/gitlab"
+
+	"github.com/covergates/covergates/config"
+	"github.com/covergates/covergates/core"
 )
 
 type middleware struct {

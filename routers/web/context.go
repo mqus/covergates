@@ -1,8 +1,9 @@
 package web
 
 import (
-	"github.com/covergates/covergates/core"
 	"github.com/gin-gonic/gin"
+
+	"github.com/covergates/covergates/core"
 )
 
 // TokenFrom context

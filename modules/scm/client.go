@@ -1,9 +1,10 @@
 package scm
 
 import (
+	"github.com/drone/go-scm/scm"
+
 	"github.com/covergates/covergates/config"
 	"github.com/covergates/covergates/core"
-	"github.com/drone/go-scm/scm"
 )
 
 type client struct {

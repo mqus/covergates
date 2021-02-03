@@ -49,5 +49,4 @@ func TestCoverSummary(t *testing.T) {
 			return
 		}
 	}
-
 }

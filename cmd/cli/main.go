@@ -4,9 +4,10 @@ import (
 	"log"
 	"os"
 
+	"github.com/urfave/cli/v2"
+
 	"github.com/covergates/covergates/cmd/cli/comment"
 	"github.com/covergates/covergates/cmd/cli/upload"
-	"github.com/urfave/cli/v2"
 )
 
 var (

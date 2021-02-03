@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/covergates/covergates/core"
 	"github.com/drone/go-scm/scm"
 	"gorm.io/gorm"
+
+	"github.com/covergates/covergates/core"
 )
 
 // User data

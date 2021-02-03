@@ -21,9 +21,14 @@ func OpenFileReader(path string) (io.Reader, error) {
 		return nil, fmt.Errorf("%s is not file", path)
 	}
 	file, err := os.Open(path)
-	defer file.Close()
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = file.Close()
+	}()
 	buf := &bytes.Buffer{}
-	io.Copy(buf, file)
+	_, _ = io.Copy(buf, file)
 	return buf, nil
 }
 
@@ -63,7 +68,7 @@ func searchStrings(slice []string, x string) bool {
 
 // ComputeStatementCoverage from list of StatementHit
 func ComputeStatementCoverage(hits []*core.StatementHit) float64 {
-	if len(hits) <= 0 {
+	if len(hits) == 0 {
 		return 0
 	}
 	sum := 0

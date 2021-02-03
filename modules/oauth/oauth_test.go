@@ -8,15 +8,16 @@ import (
 	"os"
 	"testing"
 
-	"github.com/covergates/covergates/config"
-	"github.com/covergates/covergates/core"
-	"github.com/covergates/covergates/models"
-	"github.com/covergates/covergates/modules/oauth"
 	"github.com/drone/go-scm/scm"
 	"github.com/google/go-cmp/cmp"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+
+	"github.com/covergates/covergates/config"
+	"github.com/covergates/covergates/core"
+	"github.com/covergates/covergates/models"
+	"github.com/covergates/covergates/modules/oauth"
 )
 
 var service *oauth.Service
@@ -24,8 +25,8 @@ var userStore core.UserStore
 var conf *config.Config
 
 func mockUsers(store core.UserStore) {
-	store.Create(core.Gitea, &scm.User{Login: "user1"}, &core.Token{})
-	store.Create(core.Gitea, &scm.User{Login: "user2"}, &core.Token{})
+	_ = store.Create(core.Gitea, &scm.User{Login: "user1"}, &core.Token{})
+	_ = store.Create(core.Gitea, &scm.User{Login: "user2"}, &core.Token{})
 }
 
 func TestMain(m *testing.M) {
@@ -35,7 +36,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	tempFile.Close()
+	_ = tempFile.Close()
 	x, err := gorm.Open(sqlite.Open(tempFile.Name()), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
@@ -43,13 +44,13 @@ func TestMain(m *testing.M) {
 	dbService := models.NewDatabaseService(x)
 	userStore = &models.UserStore{DB: dbService}
 	oauthStore := &models.OAuthStore{DB: dbService}
-	dbService.Migrate()
+	_ = dbService.Migrate()
 	mockUsers(userStore)
 
 	conf = &config.Config{}
 	service = oauth.NewService(conf, oauthStore, userStore)
 	exit := m.Run()
-	os.Remove(tempFile.Name())
+	_ = os.Remove(tempFile.Name())
 	os.Exit(exit)
 }
 
@@ -81,7 +82,6 @@ func TestCreate(t *testing.T) {
 }
 
 func TestValidate(t *testing.T) {
-
 	user, err := userStore.FindByLogin("user1")
 	if err != nil {
 		t.Fatal(err)
@@ -133,7 +133,7 @@ func TestDelete(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := service.DeleteToken(ctx, token); err != nil {
+	if err = service.DeleteToken(ctx, token); err != nil {
 		t.Fatal(err)
 	}
 
@@ -142,7 +142,7 @@ func TestDelete(t *testing.T) {
 		fmt.Sprintf("%s?access_token=%s", conf.Server.Addr, token.Access),
 		nil,
 	)
-	if _, err := service.Validate(request); err == nil {
+	if _, err = service.Validate(request); err == nil {
 		t.Fatal("should return err for deleted token")
 	}
 
@@ -171,7 +171,7 @@ func TestList(t *testing.T) {
 
 	ctx := service.WithUser(context.Background(), user)
 	for _, name := range names {
-		service.CreateToken(ctx, name)
+		_, _ = service.CreateToken(ctx, name)
 	}
 
 	tokens, err := service.ListTokens(ctx)

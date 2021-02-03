@@ -3,8 +3,9 @@ package perl
 import (
 	"sort"
 
-	"github.com/covergates/covergates/core"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/covergates/covergates/core"
 )
 
 // FileCollection of Perl source codes
@@ -62,7 +63,7 @@ func (c *FileCollection) add(file *core.File) {
 }
 
 func sumStatementCoverage(hits []*core.StatementHit) float64 {
-	if len(hits) <= 0 {
+	if len(hits) == 0 {
 		return 0.0
 	}
 	s := 0
@@ -75,7 +76,7 @@ func sumStatementCoverage(hits []*core.StatementHit) float64 {
 }
 
 func mergeFiles(files []*core.File) *core.File {
-	if len(files) <= 0 {
+	if len(files) == 0 {
 		return nil
 	}
 	seed := files[0]

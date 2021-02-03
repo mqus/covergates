@@ -11,16 +11,17 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/gin-gonic/gin"
+	"github.com/golang/mock/gomock"
+	"github.com/google/go-cmp/cmp"
+
 	"github.com/covergates/covergates/core"
 	"github.com/covergates/covergates/mock"
 	"github.com/covergates/covergates/routers/api/request"
 	"github.com/covergates/covergates/routers/api/user"
-	"github.com/gin-gonic/gin"
-	"github.com/golang/mock/gomock"
-	"github.com/google/go-cmp/cmp"
 )
 
-func testRequest(r *gin.Engine, req *http.Request, f func(w *httptest.ResponseRecorder)) {
+func testRequest(r http.Handler, req *http.Request, f func(w *httptest.ResponseRecorder)) {
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	f(w)
@@ -60,16 +61,16 @@ func TestTokenCreate(t *testing.T) {
 
 	buf := &bytes.Buffer{}
 	w := multipart.NewWriter(buf)
-	w.WriteField("name", mockToken.Name)
-	w.Close()
-	request, _ := http.NewRequest("POST", "/tokens", buf)
-	request.Header.Set("Content-Type", w.FormDataContentType())
-	testRequest(r, request, func(w *httptest.ResponseRecorder) {
+	_ = w.WriteField("name", mockToken.Name)
+	_ = w.Close()
+	req, _ := http.NewRequest("POST", "/tokens", buf)
+	req.Header.Set("Content-Type", w.FormDataContentType())
+	testRequest(r, req, func(w *httptest.ResponseRecorder) {
 		respond := w.Result()
+		defer respond.Body.Close()
 		if respond.StatusCode != 200 {
 			t.Fatal()
 		}
-		defer respond.Body.Close()
 		data, _ := ioutil.ReadAll(respond.Body)
 		if diff := cmp.Diff(string(data), mockToken.Access); diff != "" {
 			t.Fatal(diff)
@@ -106,9 +107,10 @@ func TestListTokens(t *testing.T) {
 	t.Run("should check user", func(t *testing.T) {
 		r := gin.Default()
 		r.GET("/tokens", user.HandleListTokens(mockService))
-		request, _ := http.NewRequest("GET", "/tokens", nil)
-		testRequest(r, request, func(w *httptest.ResponseRecorder) {
+		req, _ := http.NewRequest("GET", "/tokens", nil)
+		testRequest(r, req, func(w *httptest.ResponseRecorder) {
 			respond := w.Result()
+			defer respond.Body.Close()
 			if respond.StatusCode != 401 {
 				t.Fatal()
 			}
@@ -121,25 +123,26 @@ func TestListTokens(t *testing.T) {
 	})
 	r.GET("/tokens", user.HandleListTokens(mockService))
 	t.Run("should get tokens", func(t *testing.T) {
-		request, _ := http.NewRequest("GET", "/tokens", nil)
-		testRequest(r, request, func(w *httptest.ResponseRecorder) {
+		req, _ := http.NewRequest("GET", "/tokens", nil)
+		testRequest(r, req, func(w *httptest.ResponseRecorder) {
 			respond := w.Result()
+			defer respond.Body.Close()
 			if respond.StatusCode != 200 {
 				t.Fatal()
 			}
-			defer respond.Body.Close()
 			data, _ := ioutil.ReadAll(respond.Body)
 			var tokens []*user.Token
-			json.Unmarshal(data, &tokens)
+			_ = json.Unmarshal(data, &tokens)
 			if len(tokens) < 1 || tokens[0].Name != "token1" {
 				t.Fatal()
 			}
 		})
 	})
 	t.Run("should return 500 when error", func(t *testing.T) {
-		request, _ := http.NewRequest("GET", "/tokens", nil)
-		testRequest(r, request, func(w *httptest.ResponseRecorder) {
+		req, _ := http.NewRequest("GET", "/tokens", nil)
+		testRequest(r, req, func(w *httptest.ResponseRecorder) {
 			respond := w.Result()
+			defer respond.Body.Close()
 			if respond.StatusCode != 500 {
 				t.Fatal()
 			}
@@ -157,9 +160,10 @@ func TestDeleteToken(t *testing.T) {
 	t.Run("should check user", func(t *testing.T) {
 		r := gin.Default()
 		r.DELETE("/tokens/:id", user.HandleDeleteToken(mockService, mockStore))
-		request, _ := http.NewRequest("DELETE", "/tokens/1", nil)
-		testRequest(r, request, func(w *httptest.ResponseRecorder) {
+		req, _ := http.NewRequest("DELETE", "/tokens/1", nil)
+		testRequest(r, req, func(w *httptest.ResponseRecorder) {
 			response := w.Result()
+			defer response.Body.Close()
 			if response.StatusCode != 401 {
 				t.Fatal()
 			}
@@ -173,9 +177,10 @@ func TestDeleteToken(t *testing.T) {
 	r.DELETE("/tokens/:id", user.HandleDeleteToken(mockService, mockStore))
 
 	t.Run("should check id", func(t *testing.T) {
-		request, _ := http.NewRequest("DELETE", "/tokens/bear", nil)
-		testRequest(r, request, func(w *httptest.ResponseRecorder) {
+		req, _ := http.NewRequest("DELETE", "/tokens/bear", nil)
+		testRequest(r, req, func(w *httptest.ResponseRecorder) {
 			response := w.Result()
+			defer response.Body.Close()
 			if response.StatusCode != 400 {
 				t.Fatal()
 			}
@@ -184,9 +189,10 @@ func TestDeleteToken(t *testing.T) {
 
 	t.Run("should return 500 when not found", func(t *testing.T) {
 		mockStore.EXPECT().Find(gomock.Any()).Return(nil, errors.New(""))
-		request, _ := http.NewRequest("DELETE", "/tokens/1", nil)
-		testRequest(r, request, func(w *httptest.ResponseRecorder) {
+		req, _ := http.NewRequest("DELETE", "/tokens/1", nil)
+		testRequest(r, req, func(w *httptest.ResponseRecorder) {
 			response := w.Result()
+			defer response.Body.Close()
 			if response.StatusCode != 500 {
 				t.Fatal()
 			}
@@ -201,10 +207,11 @@ func TestDeleteToken(t *testing.T) {
 		token := &core.OAuthToken{}
 		mockStore.EXPECT().Find(gomock.Any()).Return(token, nil)
 		mockService.EXPECT().DeleteToken(gomock.Any(), token).Return(errors.New(""))
-		request, _ := http.NewRequest("DELETE", "/tokens/1", nil)
-		testRequest(r, request, func(w *httptest.ResponseRecorder) {
-			resposne := w.Result()
-			if resposne.StatusCode != 500 {
+		req, _ := http.NewRequest("DELETE", "/tokens/1", nil)
+		testRequest(r, req, func(w *httptest.ResponseRecorder) {
+			response := w.Result()
+			defer response.Body.Close()
+			if response.StatusCode != 500 {
 				t.Fatal()
 			}
 		})
@@ -216,14 +223,14 @@ func TestDeleteToken(t *testing.T) {
 			&core.OAuthToken{ID: token.ID},
 		).Return(token, nil)
 		mockService.EXPECT().DeleteToken(gomock.Any(), token).Return(nil)
-		request, _ := http.NewRequest("DELETE", "/tokens/1", nil)
-		testRequest(r, request, func(w *httptest.ResponseRecorder) {
+		req, _ := http.NewRequest("DELETE", "/tokens/1", nil)
+		testRequest(r, req, func(w *httptest.ResponseRecorder) {
 			response := w.Result()
+			defer response.Body.Close()
 			if response.StatusCode != 200 {
 				t.Fatal()
 			}
 			var token user.Token
-			defer response.Body.Close()
 			data, err := ioutil.ReadAll(response.Body)
 			if err != nil {
 				t.Fatal(err)
@@ -236,5 +243,4 @@ func TestDeleteToken(t *testing.T) {
 			}
 		})
 	})
-
 }

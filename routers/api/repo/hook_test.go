@@ -5,10 +5,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/covergates/covergates/core"
-	"github.com/covergates/covergates/mock"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
+
+	"github.com/covergates/covergates/core"
+	"github.com/covergates/covergates/mock"
 )
 
 var repo = &core.Repo{
@@ -31,10 +32,10 @@ func mockRepo(store *mock.MockRepoStore) *core.Repo {
 
 func mockSCM(
 	ctrl *gomock.Controller,
-	SCM *mock.MockSCMService,
+	scm *mock.MockSCMService,
 ) *mock.MockClient {
 	client := mock.NewMockClient(ctrl)
-	SCM.EXPECT().Client(gomock.Eq(repo.SCM)).Return(client, nil)
+	scm.EXPECT().Client(gomock.Eq(repo.SCM)).Return(client, nil)
 	return client
 }
 
@@ -60,9 +61,9 @@ func TestHook(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/repos/gitea/space/name/hook", nil)
 	testRequest(r, req, func(w *httptest.ResponseRecorder) {
 		rst := w.Result()
+		defer rst.Body.Close()
 		if rst.StatusCode != 200 {
 			t.Fatal("request fail")
 		}
 	})
-
 }

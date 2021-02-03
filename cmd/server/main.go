@@ -4,9 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/covergates/covergates/config"
-	"github.com/covergates/covergates/core"
-	"github.com/covergates/covergates/routers"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
@@ -14,6 +11,10 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+
+	"github.com/covergates/covergates/config"
+	"github.com/covergates/covergates/core"
+	"github.com/covergates/covergates/routers"
 )
 
 // Version of covergates server
@@ -72,16 +73,16 @@ func connectDatabase(cfg *config.Config) *gorm.DB {
 
 // Run server
 func Run(c *cli.Context) error {
-	config, err := config.Environ()
+	cfg, err := config.Environ()
 	if err != nil {
 		return err
 	}
-	db := connectDatabase(config)
-	app, err := InitializeApplication(config, db)
+	db := connectDatabase(cfg)
+	app, err := InitializeApplication(cfg, db)
 	if err != nil {
 		return err
 	}
-	if config.Database.AutoMigrate {
+	if cfg.Database.AutoMigrate {
 		go func() {
 			if err := app.db.Migrate(); err != nil {
 				log.Panic(err)
@@ -91,7 +92,7 @@ func Run(c *cli.Context) error {
 	}
 	r := gin.Default()
 	app.routers.RegisterRoutes(r)
-	r.Run(fmt.Sprintf(":%s", config.Server.Port()))
+	_ = r.Run(fmt.Sprintf(":%s", cfg.Server.Port()))
 	return nil
 }
 

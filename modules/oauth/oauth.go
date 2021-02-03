@@ -4,8 +4,6 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/covergates/covergates/config"
-	"github.com/covergates/covergates/core"
 	"github.com/go-oauth2/oauth2/v4"
 	"github.com/go-oauth2/oauth2/v4/errors"
 	"github.com/go-oauth2/oauth2/v4/manage"
@@ -13,6 +11,9 @@ import (
 	"github.com/go-oauth2/oauth2/v4/server"
 	"github.com/go-oauth2/oauth2/v4/store"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/covergates/covergates/config"
+	"github.com/covergates/covergates/core"
 )
 
 type key string
@@ -60,7 +61,7 @@ func newOAuthServer(config *config.Config, oauthStore core.OAuthStore) *server.S
 	)
 
 	clientStore := store.NewClientStore()
-	clientStore.Set(
+	_ = clientStore.Set(
 		config.Server.OAuthClient,
 		&models.Client{
 			ID:     config.Server.OAuthClient,
@@ -82,7 +83,6 @@ func newOAuthServer(config *config.Config, oauthStore core.OAuthStore) *server.S
 
 	srv.SetResponseErrorHandler(func(re *errors.Response) {
 		log.Errorln(re.Error)
-		return
 	})
 
 	return srv
@@ -141,7 +141,7 @@ func (s *Service) WithUser(ctx context.Context, user *core.User) context.Context
 	return context.WithValue(ctx, userKey, user)
 }
 
-func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (string, error) {
+func userAuthorizeHandler(_ http.ResponseWriter, r *http.Request) (string, error) {
 	user, ok := getUser(r.Context())
 	if !ok {
 		return "", nil

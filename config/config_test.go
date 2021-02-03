@@ -20,7 +20,6 @@ func unsetEnv(vars map[string]string) {
 }
 
 func TestEnvironConfig(t *testing.T) {
-
 	cfg, err := Environ()
 
 	if err != nil {
@@ -86,7 +85,6 @@ func TestEnvironConfig(t *testing.T) {
 	if !cfg.Gitea.SkipVerity {
 		t.Fail()
 	}
-
 }
 
 func TestConfig(t *testing.T) {

@@ -87,7 +87,7 @@ func (s *CoverageService) Report(ctx context.Context, reader io.Reader) (*core.C
 	return coverageReport, nil
 }
 
-//Find ruby coverage report in JSON format
+// Find ruby coverage report in JSON format
 func (s *CoverageService) Find(ctx context.Context, path string) (string, error) {
 	fi, err := os.Lstat(path)
 	if err != nil {

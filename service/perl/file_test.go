@@ -55,5 +55,4 @@ func TestMergeFile(t *testing.T) {
 		t.Log("file being changed")
 		t.Fail()
 	}
-
 }

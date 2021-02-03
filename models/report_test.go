@@ -9,11 +9,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/covergates/covergates/core"
 	"github.com/google/go-cmp/cmp"
 	"gorm.io/gorm"
+
+	"github.com/covergates/covergates/core"
 )
 
+// nolint:unused
 type MockCoverReport struct {
 	Name string
 }
@@ -755,7 +757,7 @@ func TestReportComment(t *testing.T) {
 	if comment.Comment != 1 {
 		t.Fail()
 	}
-	if err := store.CreateComment(report, &core.ReportComment{Comment: 2, Number: 1}); err != nil {
+	if err = store.CreateComment(report, &core.ReportComment{Comment: 2, Number: 1}); err != nil {
 		t.Fatal(err)
 	}
 	comment, err = store.FindComment(report, 1)

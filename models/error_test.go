@@ -13,7 +13,7 @@ func TestErrNotSupportSCM(t *testing.T) {
 	if !IsErrNotSupportedSCM(e) {
 		t.Fail()
 	}
-	e = fmt.Errorf("Fake error")
+	e = fmt.Errorf("fake error")
 	if IsErrNotSupportedSCM(e) {
 		t.Fail()
 	}

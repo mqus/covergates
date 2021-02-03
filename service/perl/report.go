@@ -18,8 +18,8 @@ import (
 	"github.com/covergates/covergates/modules/util"
 )
 
-var errCoverDatabaseNotFound = errors.New("Coverage database not found")
-var errDigestNoFound = errors.New("Digest not found")
+var errCoverDatabaseNotFound = errors.New("coverage database not found")
+var errDigestNoFound = errors.New("digest not found")
 
 type errDigestFormat struct {
 	msg string
@@ -43,7 +43,6 @@ func (r *CoverageService) Report(
 	ctx context.Context,
 	data io.Reader,
 ) (*core.CoverageReport, error) {
-
 	z, err := archive.NewZipReader(data)
 	if err != nil {
 		return nil, err
@@ -95,7 +94,9 @@ func (r *CoverageService) Open(ctx context.Context, path string) (io.Reader, err
 	root := strings.TrimRight(path, "/")
 	buf := new(bytes.Buffer)
 	w := zip.NewWriter(buf)
-	defer w.Close()
+	defer func() {
+		_ = w.Close()
+	}()
 	err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
 		if len(path) <= len(root) {
 			return nil
@@ -134,9 +135,19 @@ func findDigests(files []*zip.File) (digestsMap, error) {
 			if filepath.Ext(name) == ".lock" {
 				continue
 			}
-			r, err := file.Open()
-			defer r.Close()
-			digest, err := unmarshalCoverDigest(r)
+			digest, err := func(file *zip.File) (*coverDigest, error) {
+				r, err := file.Open()
+				if err != nil {
+					return nil, err
+				}
+
+				defer func() {
+					_ = r.Close()
+				}()
+
+				return unmarshalCoverDigest(r)
+			}(file)
+
 			if err != nil {
 				return nil, err
 			}
@@ -152,7 +163,7 @@ func unmarshalCoverDigest(r io.Reader) (*coverDigest, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := json.Unmarshal(data, &m); err != nil {
+	if err = json.Unmarshal(data, &m); err != nil {
 		return nil, err
 	}
 	fileData, ok := m["file"]
@@ -193,7 +204,9 @@ func findCoverDB(z *zip.Reader) (*coverDB, error) {
 		return nil, errCoverDatabaseNotFound
 	}
 	content, err := cover.Open()
-	defer content.Close()
+	defer func() {
+		_ = content.Close()
+	}()
 	if err != nil {
 		return nil, err
 	}
@@ -209,7 +222,7 @@ func findCoverDB(z *zip.Reader) (*coverDB, error) {
 }
 
 func avgStatementCoverage(files []*core.File) float64 {
-	if len(files) <= 0 {
+	if len(files) == 0 {
 		return 0.0
 	}
 	s := float64(0)

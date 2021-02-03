@@ -1,8 +1,9 @@
 package repo
 
 import (
-	"github.com/covergates/covergates/core"
 	"github.com/gin-gonic/gin"
+
+	"github.com/covergates/covergates/core"
 )
 
 // HandleHookCreate for the repository
@@ -33,11 +34,11 @@ func HandleHookCreate(service core.HookService) gin.HandlerFunc {
 // @Param name path string true "name"
 // @Success 200 {object} string ok
 // @Router /repos/{scm}/{namespace}/{name}/hook [post]
-func HandleHook(SCM core.SCMService, service core.HookService) gin.HandlerFunc {
+func HandleHook(scm core.SCMService, service core.HookService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		repo := c.MustGet(keyRepo).(*core.Repo)
 		ctx := c.Request.Context()
-		client, err := SCM.Client(repo.SCM)
+		client, err := scm.Client(repo.SCM)
 		if err != nil {
 			c.String(500, err.Error())
 			return

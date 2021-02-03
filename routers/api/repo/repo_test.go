@@ -9,14 +9,15 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/gin-gonic/gin"
+	"github.com/golang/mock/gomock"
+
 	"github.com/covergates/covergates/core"
 	"github.com/covergates/covergates/mock"
 	"github.com/covergates/covergates/routers/api/request"
-	"github.com/gin-gonic/gin"
-	"github.com/golang/mock/gomock"
 )
 
-func testRequest(r *gin.Engine, req *http.Request, f func(*httptest.ResponseRecorder)) {
+func testRequest(r http.Handler, req *http.Request, f func(*httptest.ResponseRecorder)) {
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	f(w)
@@ -51,6 +52,7 @@ func TestCreate(t *testing.T) {
 	r.POST("/repo", HandleCreate(store, service))
 	testRequest(r, req, func(w *httptest.ResponseRecorder) {
 		rst := w.Result()
+		defer rst.Body.Close()
 		if rst.StatusCode != 200 {
 			t.Fail()
 			return
@@ -61,7 +63,7 @@ func TestCreate(t *testing.T) {
 			return
 		}
 		rstRepo := &core.Repo{}
-		json.Unmarshal(data, rstRepo)
+		_ = json.Unmarshal(data, rstRepo)
 		if !reflect.DeepEqual(repo, rstRepo) {
 			t.Fail()
 		}
@@ -113,13 +115,14 @@ func TestListSCM(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/repos/github", nil)
 	testRequest(r, req, func(w *httptest.ResponseRecorder) {
 		rst := w.Result()
+		defer rst.Body.Close()
 		if rst.StatusCode != 200 {
 			t.Fail()
 			return
 		}
 		data, _ := ioutil.ReadAll(rst.Body)
 		var repos []*core.Repo
-		json.Unmarshal(data, &repos)
+		_ = json.Unmarshal(data, &repos)
 		if len(repos) < 2 {
 			t.Fail()
 			return
@@ -172,6 +175,7 @@ func TestReportIDRenew(t *testing.T) {
 	req, _ := http.NewRequest("PATCH", "/repos/github/github/repo/report", nil)
 	testRequest(r, req, func(h *httptest.ResponseRecorder) {
 		result := h.Result()
+		defer result.Body.Close()
 		if result.StatusCode != 200 {
 			t.Fatal()
 		}

@@ -10,6 +10,7 @@ func BasicClient(insecure bool) *http.Client {
 	client := &http.Client{
 		Transport: &http.Transport{
 			Proxy: http.ProxyFromEnvironment,
+			// #nosec
 			TLSClientConfig: &tls.Config{
 				InsecureSkipVerify: insecure,
 			},

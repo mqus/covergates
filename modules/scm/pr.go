@@ -3,8 +3,9 @@ package scm
 import (
 	"context"
 
-	"github.com/covergates/covergates/core"
 	"github.com/drone/go-scm/scm"
+
+	"github.com/covergates/covergates/core"
 )
 
 type prService struct {

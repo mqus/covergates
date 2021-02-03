@@ -5,8 +5,9 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/covergates/covergates/core"
 	"github.com/kelseyhightower/envconfig"
+
+	"github.com/covergates/covergates/core"
 )
 
 // Config of application
@@ -122,7 +123,7 @@ func (server Server) BaseURL() string {
 
 // URL of the server
 func (server Server) URL() string {
-	url := strings.TrimRight(server.Addr, "/")
-	url = url + server.BaseURL()
-	return strings.TrimRight(url, "/")
+	addr := strings.TrimRight(server.Addr, "/")
+	addr += server.BaseURL()
+	return strings.TrimRight(addr, "/")
 }

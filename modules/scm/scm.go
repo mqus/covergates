@@ -7,14 +7,15 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/covergates/covergates/config"
-	"github.com/covergates/covergates/core"
 	"github.com/drone/go-scm/scm"
 	"github.com/drone/go-scm/scm/driver/gitea"
 	"github.com/drone/go-scm/scm/driver/github"
 	"github.com/drone/go-scm/scm/driver/gitlab"
 	"github.com/drone/go-scm/scm/transport/oauth2"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/covergates/covergates/config"
+	"github.com/covergates/covergates/core"
 )
 
 type errClientNotFound struct {
@@ -35,6 +36,7 @@ type Service struct {
 func transport(insecure bool) http.RoundTripper {
 	return &http.Transport{
 		Proxy: http.ProxyFromEnvironment,
+		// #nosec
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: insecure,
 		},
@@ -95,6 +97,10 @@ func scmClient(s core.SCMProvider, config *config.Config) (*scm.Client, error) {
 	switch s {
 	case core.Github:
 		client, err = github.New(config.Github.APIServer)
+		if err != nil {
+			return client, err
+		}
+
 		client.Client = &http.Client{
 			Transport: &oauth2.Transport{
 				Source: oauth2.ContextTokenSource(),
@@ -103,6 +109,10 @@ func scmClient(s core.SCMProvider, config *config.Config) (*scm.Client, error) {
 		}
 	case core.Gitea:
 		client, err = gitea.New(config.Gitea.Server)
+		if err != nil {
+			return client, err
+		}
+
 		client.Client = &http.Client{
 			Transport: &oauth2.Transport{
 				Scheme: oauth2.SchemeBearer,
@@ -116,20 +126,24 @@ func scmClient(s core.SCMProvider, config *config.Config) (*scm.Client, error) {
 		}
 	case core.GitLab:
 		client, err = gitlab.New(config.GitLab.Server)
+		if err != nil {
+			return client, err
+		}
+
 		client.Client = &http.Client{
 			Transport: &oauth2.Transport{
 				Source: oauth2.ContextTokenSource(),
 				Base: &http.Transport{
 					Proxy: http.ProxyFromEnvironment,
+					// #nosec
 					TLSClientConfig: &tls.Config{
 						InsecureSkipVerify: config.GitLab.SkipVerity,
 					},
 				},
 			},
 		}
-	default:
-		log.Debug("scm not supported")
-		return nil, &errClientNotFound{s}
 	}
-	return client, err
+
+	log.Debug("scm not supported")
+	return nil, &errClientNotFound{s}
 }

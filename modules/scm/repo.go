@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/covergates/covergates/config"
-	"github.com/covergates/covergates/core"
 	"github.com/drone/go-scm/scm"
 	"github.com/rs/xid"
+
+	"github.com/covergates/covergates/config"
+	"github.com/covergates/covergates/core"
 )
 
 // RepoService provides repository operations with SCM
@@ -18,7 +19,7 @@ type repoService struct {
 }
 
 // NewReportID for upload report
-func (service *repoService) NewReportID(repo *core.Repo) string {
+func (service *repoService) NewReportID(_ *core.Repo) string {
 	guid := xid.New()
 	return guid.String()
 }
@@ -36,7 +37,7 @@ func (service *repoService) List(
 		if err != nil {
 			return nil, err
 		}
-		if len(repos) <= 0 {
+		if len(repos) == 0 {
 			break
 		}
 		results = append(results, repos...)
@@ -69,7 +70,7 @@ func (service *repoService) Find(
 	return &core.Repo{
 		Name:      repo.Name,
 		NameSpace: repo.Namespace,
-		SCM:       core.SCMProvider(service.scm),
+		SCM:       service.scm,
 		URL:       repo.Link,
 		Branch:    repo.Branch,
 		Private:   repo.Private,

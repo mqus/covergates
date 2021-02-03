@@ -1,9 +1,10 @@
 package report
 
 import (
+	"github.com/gin-gonic/gin"
+
 	"github.com/covergates/covergates/core"
 	"github.com/covergates/covergates/routers/api/request"
-	"github.com/gin-gonic/gin"
 )
 
 // ProtectReport from modifying by unauthorized users

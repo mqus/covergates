@@ -9,9 +9,10 @@ import (
 	"strconv"
 	"strings"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/covergates/covergates/core"
 	"github.com/covergates/covergates/service/common"
-	log "github.com/sirupsen/logrus"
 )
 
 const mode = "mode: "

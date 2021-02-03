@@ -7,8 +7,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/covergates/covergates/core"
 	"github.com/google/go-cmp/cmp"
+
+	"github.com/covergates/covergates/core"
 )
 
 type expectation struct {

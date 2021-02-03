@@ -3,10 +3,11 @@ package web
 import (
 	"net/http"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/covergates/covergates/config"
 	"github.com/covergates/covergates/core"
 	"github.com/covergates/covergates/web"
-	"github.com/gin-gonic/gin"
 )
 
 // Router for frontend web

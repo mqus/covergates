@@ -10,7 +10,8 @@ import (
 )
 
 const (
-	typeStmt   = "stmt"
+	typeStmt = "stmt"
+	// nolint:deadcode,varcheck,unused
 	typeMethod = "method"
 )
 
@@ -49,7 +50,7 @@ type line struct {
 }
 
 // Report for clover
-func (s *CoverageService) Report(ctx context.Context, data io.Reader) (*core.CoverageReport, error) {
+func (s *CoverageService) Report(_ context.Context, data io.Reader) (*core.CoverageReport, error) {
 	cov := &coverage{}
 	if err := xml.NewDecoder(data).Decode(cov); err != nil {
 		return nil, err
@@ -58,12 +59,12 @@ func (s *CoverageService) Report(ctx context.Context, data io.Reader) (*core.Cov
 }
 
 // Find clover report, if path is file, return it directly
-func (s *CoverageService) Find(ctx context.Context, path string) (string, error) {
+func (s *CoverageService) Find(_ context.Context, path string) (string, error) {
 	return common.FindReport(path, "clover.xml")
 }
 
 // Open reader of clover coverage report
-func (s *CoverageService) Open(ctx context.Context, path string) (io.Reader, error) {
+func (s *CoverageService) Open(_ context.Context, path string) (io.Reader, error) {
 	return common.OpenFileReader(path)
 }
 
@@ -96,14 +97,13 @@ func (f *file) toFile() (*core.File, error) {
 			continue
 		}
 		hits = append(hits, &core.StatementHit{
-			Hits:       (line.Count),
+			Hits:       line.Count,
 			LineNumber: line.Num,
 		})
 	}
 	coverage := 0.0
 	if f.Metric.Statements > 0 {
 		coverage = float64(f.Metric.CoveredStatements) / float64(f.Metric.Statements)
-
 	}
 	return &core.File{
 		Name:              f.Name,

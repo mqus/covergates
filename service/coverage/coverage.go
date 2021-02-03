@@ -16,12 +16,12 @@ import (
 	"github.com/covergates/covergates/service/ruby"
 )
 
-var errReportTypeNotSupport = errors.New("Report type not support")
+var errReportTypeNotSupport = errors.New("report type not support")
 
 // Service of coverage report
 type Service struct{}
 
-//TypeCoverageService defines a coverage service for a language
+// TypeCoverageService defines a coverage service for a language
 type TypeCoverageService interface {
 	Report(ctx context.Context, data io.Reader) (*core.CoverageReport, error)
 	Find(ctx context.Context, path string) (string, error)
@@ -30,10 +30,7 @@ type TypeCoverageService interface {
 
 // IsReportTypeNotSupportError check
 func IsReportTypeNotSupportError(err error) bool {
-	if err == errReportTypeNotSupport {
-		return true
-	}
-	return false
+	return err == errReportTypeNotSupport
 }
 
 func (s *Service) service(t core.ReportType) (TypeCoverageService, error) {

@@ -4,11 +4,12 @@ import (
 	"io/ioutil"
 	"testing"
 
+	"github.com/golang/mock/gomock"
+	"github.com/google/go-cmp/cmp"
+
 	"github.com/covergates/covergates/config"
 	"github.com/covergates/covergates/core"
 	"github.com/covergates/covergates/mock"
-	"github.com/golang/mock/gomock"
-	"github.com/google/go-cmp/cmp"
 )
 
 const expectMarkdown = `### [Coverage: 50.0%](http://localhost/report/github/space/name?ref=commit)

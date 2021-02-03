@@ -4,11 +4,12 @@ import (
 	"os"
 	"testing"
 
+	"github.com/golang/mock/gomock"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/covergates/covergates/core"
 	"github.com/covergates/covergates/mock"
 	"github.com/covergates/covergates/models/tests"
-	"github.com/golang/mock/gomock"
-	log "github.com/sirupsen/logrus"
 
 	"gorm.io/gorm"
 )

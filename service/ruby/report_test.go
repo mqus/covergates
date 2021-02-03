@@ -7,8 +7,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/covergates/covergates/core"
 	"github.com/google/go-cmp/cmp"
+
+	"github.com/covergates/covergates/core"
 )
 
 type expect struct {
@@ -27,7 +28,7 @@ func TestReport(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(r.Files) <= 0 {
+	if len(r.Files) == 0 {
 		t.Fatal()
 	}
 	m := make(map[string]*core.File)

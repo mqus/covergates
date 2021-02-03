@@ -16,7 +16,9 @@ func TestReport(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer reader.Close()
+	defer func() {
+		_ = reader.Close()
+	}()
 	report, err := s.Report(context.Background(), reader)
 	if err != nil {
 		t.Fatal(err)
@@ -39,7 +41,6 @@ func TestReport(t *testing.T) {
 	} else {
 		t.Fatal("repo.go not found")
 	}
-
 }
 
 func hitMap(hits []*core.StatementHit) map[int]*core.StatementHit {

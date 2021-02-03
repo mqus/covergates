@@ -5,12 +5,13 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/covergates/covergates/core"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
+
+	"github.com/covergates/covergates/core"
 )
 
-var errReportFields = errors.New("Error Report Fields")
+var errReportFields = errors.New("error report fields")
 
 type reportList []*Report
 
@@ -70,7 +71,7 @@ func (store *ReportStore) Upload(r *core.Report) error {
 		ReportID: r.ReportID,
 		Commit:   r.Commit,
 	})
-	if len(report.References) <= 0 && r.Reference != "" {
+	if len(report.References) == 0 && r.Reference != "" {
 		if err := store.appendReference(report, r.Reference); err != nil {
 			return err
 		}
@@ -105,7 +106,7 @@ func (store *ReportStore) Find(r *core.Report) (*core.Report, error) {
 		if err := session.Error; err != nil {
 			return nil, err
 		}
-		if len(ref.Reports) <= 0 {
+		if len(ref.Reports) == 0 {
 			return nil, gorm.ErrRecordNotFound
 		}
 		target = ref.Reports[0]
@@ -140,7 +141,7 @@ func (store *ReportStore) Finds(r *core.Report) ([]*core.Report, error) {
 		if err := session.Error; err != nil {
 			return nil, err
 		}
-		if len(ref.Reports) <= 0 {
+		if len(ref.Reports) == 0 {
 			return nil, gorm.ErrRecordNotFound
 		}
 		rst = ref.Reports
@@ -176,7 +177,7 @@ func (store *ReportStore) List(reportID, ref string) ([]*core.Report, error) {
 	if err := session.Error; err != nil {
 		return nil, err
 	}
-	if len(reference.Reports) <= 0 {
+	if len(reference.Reports) == 0 {
 		return nil, gorm.ErrRecordNotFound
 	}
 	return reportList(reference.Reports).ToCoreReports(ref), nil

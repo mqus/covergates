@@ -3,9 +3,10 @@ package report
 import (
 	"fmt"
 
-	"github.com/covergates/covergates/core"
 	"github.com/gin-gonic/gin"
 	"github.com/narqo/go-badge"
+
+	"github.com/covergates/covergates/core"
 )
 
 // HandleGetBadge for the report id

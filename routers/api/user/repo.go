@@ -1,9 +1,10 @@
 package user
 
 import (
+	"github.com/gin-gonic/gin"
+
 	"github.com/covergates/covergates/core"
 	"github.com/covergates/covergates/routers/api/request"
-	"github.com/gin-gonic/gin"
 )
 
 // HandleSynchronizeRepo for the user
@@ -16,7 +17,7 @@ func HandleSynchronizeRepo(repoService core.RepoService) gin.HandlerFunc {
 		user := request.MustGetUserFrom(c)
 		ctx := c.Request.Context()
 		if err := repoService.Synchronize(ctx, user); err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			c.String(500, err.Error())
 			return
 		}
@@ -34,7 +35,7 @@ func HandleListRepo(userStore core.UserStore) gin.HandlerFunc {
 		user := request.MustGetUserFrom(c)
 		repos, err := userStore.ListRepositories(user)
 		if err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			c.JSON(500, []*core.Repo{})
 			return
 		}

@@ -4,9 +4,10 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/covergates/covergates/core"
 	"github.com/go-oauth2/oauth2/v4"
 	"github.com/go-oauth2/oauth2/v4/models"
+
+	"github.com/covergates/covergates/core"
 )
 
 type tokenStore struct {

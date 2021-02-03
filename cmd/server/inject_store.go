@@ -1,12 +1,14 @@
 package main
 
 import (
-	"github.com/covergates/covergates/core"
-	"github.com/covergates/covergates/models"
 	"github.com/google/wire"
 	"gorm.io/gorm"
+
+	"github.com/covergates/covergates/core"
+	"github.com/covergates/covergates/models"
 )
 
+// nolint:deadcode,varcheck,unused
 var storeSet = wire.NewSet(
 	provideDatabaseService,
 	provideUserStore,

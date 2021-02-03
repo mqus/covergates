@@ -3,9 +3,10 @@ package session
 import (
 	"encoding/gob"
 
-	"github.com/covergates/covergates/core"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+
+	"github.com/covergates/covergates/core"
 )
 
 func init() {

@@ -33,8 +33,8 @@ func TestCard(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer func() {
-		file.Close()
-		os.Remove(file.Name())
+		_ = file.Close()
+		_ = os.Remove(file.Name())
 	}()
-	card.Render(file)
+	_ = card.Render(file)
 }

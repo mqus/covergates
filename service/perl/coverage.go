@@ -37,8 +37,8 @@ func updateSummary(s map[string]*coverCount, r *coverRun) error {
 }
 
 func (db *coverDB) CountSummarize() (map[string]*coverCount, error) {
-	if len(db.Runs) <= 0 {
-		return nil, fmt.Errorf("No runs")
+	if len(db.Runs) == 0 {
+		return nil, fmt.Errorf("no runs")
 	}
 	summary := make(map[string]*coverCount)
 	for _, run := range db.Runs {
@@ -57,7 +57,7 @@ func newCoverCount(lines int) *coverCount {
 
 func (c *coverCount) updateStatement(statement []int) error {
 	if len(statement) != len(c.Statement) {
-		return fmt.Errorf("Statement count mismatch")
+		return fmt.Errorf("statement count mismatch")
 	}
 	for i, n := range statement {
 		c.Statement[i] += n

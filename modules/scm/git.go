@@ -10,10 +10,11 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/covergates/covergates/core"
 	"github.com/drone/go-scm/scm"
 	"github.com/drone/go-scm/scm/driver/github"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/covergates/covergates/core"
 )
 
 type gitService struct {
@@ -139,7 +140,9 @@ func (service *gitService) listGiteaCommits(ctx context.Context, repo, ref strin
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
+	defer func() {
+		_ = res.Body.Close()
+	}()
 	if res.Status > 300 {
 		return nil, errors.New(http.StatusText(res.Status))
 	}
@@ -179,14 +182,16 @@ func (service *gitService) listGithubCommits(ctx context.Context, repo, ref stri
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
+	defer func() {
+		_ = res.Body.Close()
+	}()
 	if res.Status > 300 {
 		var err *github.Error
-		json.NewDecoder(res.Body).Decode(err)
+		_ = json.NewDecoder(res.Body).Decode(err)
 		return nil, err
 	}
 	var commits []*githubCommit
-	json.NewDecoder(res.Body).Decode(&commits)
+	_ = json.NewDecoder(res.Body).Decode(&commits)
 	result := make([]*core.Commit, len(commits))
 	for i, commit := range commits {
 		result[i] = &core.Commit{
@@ -219,9 +224,9 @@ func (service *gitService) GitRepository(ctx context.Context, user *core.User, r
 	rs := &repoService{scm: service.scm, client: client}
 	token := userToken(service.scm, user)
 	ctx = withUser(ctx, service.scm, user)
-	url, err := rs.CloneURL(ctx, user, repo)
+	cloneURL, err := rs.CloneURL(ctx, user, repo)
 	if err != nil {
 		return nil, err
 	}
-	return service.git.Clone(ctx, url, token.Token)
+	return service.git.Clone(ctx, cloneURL, token.Token)
 }

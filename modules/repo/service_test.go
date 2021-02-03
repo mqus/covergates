@@ -4,11 +4,12 @@ import (
 	"context"
 	"testing"
 
+	"github.com/golang/mock/gomock"
+
 	"github.com/covergates/covergates/config"
 	"github.com/covergates/covergates/core"
 	"github.com/covergates/covergates/mock"
 	"github.com/covergates/covergates/modules/repo"
-	"github.com/golang/mock/gomock"
 )
 
 func TestSynchronize(t *testing.T) {

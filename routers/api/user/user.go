@@ -3,10 +3,11 @@ package user
 import (
 	"strings"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/covergates/covergates/config"
 	"github.com/covergates/covergates/core"
 	"github.com/covergates/covergates/routers/api/request"
-	"github.com/gin-gonic/gin"
 )
 
 // User for API response
@@ -108,7 +109,7 @@ func HandleGetOwner(store core.RepoStore, service core.SCMService) gin.HandlerFu
 
 		client, err := service.Client(provider)
 		if err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			c.JSON(500, &User{})
 			return
 		}
