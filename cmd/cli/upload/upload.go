@@ -7,6 +7,9 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
+	"regexp"
+	"strings"
 
 	"github.com/urfave/cli/v2"
 
@@ -43,6 +46,11 @@ var Command = &cli.Command{
 			Value:    "",
 			Required: false,
 		},
+		&cli.StringSliceFlag{
+			Name:     "skip-file",
+			Usage:    "skip regexp compliant files",
+			Required: false,
+		},
 	},
 	Action: upload,
 }
@@ -77,6 +85,12 @@ func upload(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+
+	files, err = removeSkipFile(files, c.StringSlice("skip-file"))
+	if err != nil {
+		return err
+	}
+
 	filesData, err := json.Marshal(files)
 	if err != nil {
 		return err
@@ -136,4 +150,47 @@ func findReportData(ctx context.Context, reportType, path string) ([]byte, error
 		return nil, err
 	}
 	return ioutil.ReadAll(r)
+}
+
+func removeSkipFile(files []string, patterns []string) ([]string, error) {
+	var result []string
+	for _, s := range files {
+		matched, err := matchPatterns(s, patterns)
+		if err != nil {
+			return nil, err
+		}
+
+		if !matched {
+			result = append(result, s)
+		}
+	}
+
+	return result, nil
+}
+
+func matchPatterns(s string, patterns []string) (bool, error) {
+	var matched bool
+	for _, pattern := range patterns {
+		p := normalizePathInRegex(pattern)
+		patternRe, err := regexp.Compile(p)
+		if err != nil {
+			return false, err
+		}
+
+		matched = patternRe.MatchString(s)
+	}
+
+	return matched, nil
+}
+
+var separatorToReplace = regexp.QuoteMeta(string(filepath.Separator))
+
+func normalizePathInRegex(path string) string {
+	if filepath.Separator == '/' {
+		return path
+	}
+
+	// This replacing should be safe because "/" are disallowed in Windows
+	// https://docs.microsoft.com/ru-ru/windows/win32/fileio/naming-a-file
+	return strings.ReplaceAll(path, "/", separatorToReplace)
 }

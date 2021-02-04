@@ -1,7 +1,7 @@
 run:
   timeout: 5m
   skip-files:
-    - ".*_gen.go$"
+    - ".*_gen\\.go$"
 
 linters-settings:
   gofmt:
