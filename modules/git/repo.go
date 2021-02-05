@@ -4,6 +4,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
+	ignore "github.com/sabhiram/go-gitignore"
 
 	"github.com/covergates/covergates/core"
 )
@@ -20,25 +21,33 @@ func (repo *repository) headCommit() string {
 	return head.Hash().String()
 }
 
-func (repo *repository) ListAllFiles(commit string) ([]string, error) {
+func (repo *repository) ListAllFiles(commit string, patterns ...string) ([]string, error) {
 	r := repo.gitRepository
 	if commit == "" {
 		commit = repo.headCommit()
 	}
+
 	commitObject, err := r.CommitObject(plumbing.NewHash(commit))
 	if err != nil {
 		return nil, err
 	}
+
 	tree, err := commitObject.Tree()
 	if err != nil {
 		return nil, err
 	}
+
 	files := make([]string, 0)
-	_ = tree.Files().ForEach(func(f *object.File) error {
+	err = tree.Files().ForEach(func(f *object.File) error {
+		if ignore.CompileIgnoreLines(patterns...).MatchesPath(f.Name) {
+			return nil
+		}
+
 		files = append(files, f.Name)
 		return nil
 	})
-	return files, nil
+
+	return files, err
 }
 
 func (repo *repository) Commit(commit string) (core.GitCommit, error) {

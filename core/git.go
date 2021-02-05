@@ -1,12 +1,14 @@
 package core
 
-import "context"
+import (
+	"context"
+)
 
 //go:generate mockgen -package mock -destination ../mock/git_mock.go . GitRepository,Git,GitCommit
 
 // GitRepository which is cloned from SCM
 type GitRepository interface {
-	ListAllFiles(commit string) ([]string, error)
+	ListAllFiles(commit string, patterns ...string) ([]string, error)
 	// Commit returns a GitCommit object of the SHA
 	Commit(commit string) (GitCommit, error)
 	HeadCommit() string

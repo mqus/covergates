@@ -27,6 +27,7 @@ require (
 	github.com/narqo/go-badge v0.0.0-20190124110329-d9415e4e1e9f
 	github.com/nbio/st v0.0.0-20140626010706-e9e8d9816f32 // indirect
 	github.com/rs/xid v1.2.1
+	github.com/sabhiram/go-gitignore v0.0.0-20201211210132-54b8a0bf510f
 	github.com/sirupsen/logrus v1.6.0
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
 	github.com/swaggo/gin-swagger v1.2.0
