@@ -86,7 +86,7 @@ func HandleDeleteToken(service core.OAuthService, store core.OAuthStore) gin.Han
 			c.JSON(401, &Token{})
 			return
 		}
-		id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			_ = c.Error(err)
 			c.JSON(400, &Token{})
