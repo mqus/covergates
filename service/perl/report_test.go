@@ -168,7 +168,7 @@ func TestFindReport(t *testing.T) {
 
 func TestOpenReport(t *testing.T) {
 	file := filepath.Join("testdata", "cover_db.zip")
-	tmpDir, err := ioutil.TempDir("./", "TestOpenReport")
+	tmpDir, err := ioutil.TempDir(os.TempDir(), "TestOpenReport")
 	if err != nil {
 		t.Fatal(err)
 	}

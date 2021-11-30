@@ -113,8 +113,8 @@ func (store *UserStore) findWithSCM(scm core.SCMProvider, user *scm.User) (*User
 // FindByLogin name
 func (store *UserStore) FindByLogin(login string) (*core.User, error) {
 	session := store.DB.Session()
-	u := &User{}
-	if err := session.Where(&User{Login: login}).First(u).Error; err != nil {
+	var u User
+	if err := session.Where(&User{Login: login}).First(&u).Error; err != nil {
 		return nil, err
 	}
 	return u.toCoreUser(), nil

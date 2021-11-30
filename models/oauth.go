@@ -102,7 +102,7 @@ func (store *OAuthStore) Delete(token *core.OAuthToken) error {
 		Refresh: token.Refresh,
 	}
 	session := store.DB.Session()
-	return session.Where(cond).Delete(OAuthToken{}).Error
+	return session.Where(cond).Delete(&OAuthToken{}).Error
 }
 
 func (token *OAuthToken) toCoreOAuthToken() *core.OAuthToken {
