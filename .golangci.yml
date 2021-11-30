@@ -2,14 +2,13 @@ run:
   timeout: 5m
   skip-files:
     - ".*_gen\\.go$"
+  tests: false
 
 linters-settings:
   gofmt:
     simplify: true
   goimports:
     local-prefixes: github.com/covergates/covergates
-  golint:
-    min-confidence: 0
   govet:
     check-shadowing: true
     enable-all: true
@@ -25,12 +24,10 @@ linters:
     - gocritic
     - gofmt
     - goimports
-    - golint
     - gosec
     - gosimple
     - govet
     - ineffassign
-    - interfacer
     - misspell
     - nakedret
     - staticcheck
@@ -41,3 +38,7 @@ linters:
     - unused
     - varcheck
     - whitespace
+
+issues:
+  exclude:
+    - fieldalignment
