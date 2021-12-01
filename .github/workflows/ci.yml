@@ -36,13 +36,17 @@ jobs:
         if: env.BUILD_TYPE == 'BACKEND'
         uses: actions/setup-go@v2
         with:
-          go-version: "1.16"
+          go-version: 1.16
 
       - name: Go Lint
         if: env.BUILD_TYPE == 'BACKEND'
-        run: |
-          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-          golangci-lint run -v ./...
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.43.0
+          skip-go-installation: true
+          args: -v
+          skip-build-cache: true
+          skip-pkg-cache: true
 
       - name: Go Test
         if: env.BUILD_TYPE == 'BACKEND'
@@ -55,10 +59,10 @@ jobs:
         if: env.BUILD_TYPE == 'BACKEND'
         uses: covergates/github-actions@v1
         with:
-          report-id: "bsi5dvi23akg00a0tgl0"
-          report-type: "go"
-          report-file: "./coverage.out"
-          pull-request: "true"
+          report-id: c6je2rq23akg00c1ran0
+          report-type: go
+          report-file: ./coverage.out
+          pull-request: true
 
       - name: Setup NPM
         if: env.BUILD_TYPE == 'FRONTEND'
@@ -82,7 +86,7 @@ jobs:
         if: env.BUILD_TYPE == 'FRONTEND'
         uses: covergates/github-actions@v1
         with:
-          report-id: "bsi5dvi23akg00a0tgl0"
-          report-type: "lcov"
-          report-file: "./web/coverage/lcov.info"
-          pull-request: "true"
+          report-id: c6je2rq23akg00c1ran0
+          report-type: lcov
+          report-file: ./web/coverage/lcov.info
+          pull-request: true
