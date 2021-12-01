@@ -1,3 +1,4 @@
+//go:build !mysql && !postgres
 // +build !mysql,!postgres
 
 package tests

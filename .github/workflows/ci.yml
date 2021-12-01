@@ -42,11 +42,9 @@ jobs:
         if: env.BUILD_TYPE == 'BACKEND'
         uses: golangci/golangci-lint-action@v2
         with:
-          version: v1.43.0
+          version: v1.43
           skip-go-installation: true
           args: -v
-          skip-build-cache: true
-          skip-pkg-cache: true
 
       - name: Go Test
         if: env.BUILD_TYPE == 'BACKEND'
