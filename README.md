@@ -1,14 +1,14 @@
 <h1> <img src="https://covergates.com/logo.png" alt="logo" width="48" height=48> Covergates - Portal Gates to Coverage Reports</h1>
 
-[![badge](https://covergates.com/api/v1/reports/bsi5dvi23akg00a0tgl0/badge?)](https://covergates.com/report/github/covergates/covergates)
-![CI](https://github.com/covergates/covergates/workflows/CI/badge.svg)
-[![Go Report Card](https://goreportcard.com/badge/github.com/covergates/covergates)](https://goreportcard.com/report/github.com/covergates/covergates)
-[![PkgGoDev](https://pkg.go.dev/badge/github.com/covergates/covergates)](https://pkg.go.dev/github.com/covergates/covergates)
+[![badge](https://covergates.com/api/v1/reports/bsi5dvi23akg00a0tgl0/badge?)](https://covergates.com/report/github/laojianzi/covergates)
+![CI](https://github.com/laojianzi/covergates/workflows/CI/badge.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/laojianzi/covergates)](https://goreportcard.com/report/github.com/laojianzi/covergates)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/laojianzi/covergates)](https://pkg.go.dev/github.com/laojianzi/covergates)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![CLA assistant](https://cla-assistant.io/readme/badge/covergates/covergates)](https://cla-assistant.io/covergates/covergates)
+[![CLA assistant](https://cla-assistant.io/readme/badge/covergates/covergates)](https://cla-assistant.io/laojianzi/covergates)
 [![Twitter Follow](https://img.shields.io/twitter/follow/covergates_tw.svg?style=social)](https://twitter.com/covergates_tw)
 
-[![card](https://covergates.com/api/v1/reports/bsi5dvi23akg00a0tgl0/card)](https://covergates.com/report/github/covergates/covergates)
+[![card](https://covergates.com/api/v1/reports/bsi5dvi23akg00a0tgl0/card)](https://covergates.com/report/github/laojianzi/covergates)
 
 ## Purpose
 
@@ -26,7 +26,7 @@ Want to try? Visit [covergates.com](https://covergates.com) before you starting.
 
 ## Using
 
-To get started, please download prebuilt binary [covergates-**version**-**platform**-**architecture**.zip](https://github.com/covergates/covergates/releases) and try:
+To get started, please download prebuilt binary [covergates-**version**-**platform**-**architecture**.zip](https://github.com/laojianzi/covergates/releases) and try:
 
 ```sh
 unzip covergates-<version>-<platform>-<architecture>.zip
@@ -106,7 +106,7 @@ You may change `SERVER_API_URL` to your self-hosted **covergates-server** addres
 
 If your are behind firewall or proxy,
 you may also download source package with `vendor` modules from [covergates.**version**.src.zip
-](https://github.com/covergates/covergates/releases). To build with `vendor` modules, run:
+](https://github.com/laojianzi/covergates/releases). To build with `vendor` modules, run:
 
 ```
 go build -o covergates-server -mod vendor ./cmd/server
@@ -117,7 +117,7 @@ To build frontend, it requires:
 1. [Node.js v12](https://nodejs.org/en/download/)
 2. [togo](https://github.com/bradrydzewski/togo)
 
-Read [web/README.md](https://github.com/covergates/covergates/blob/master/web/README.md) for more details.
+Read [web/README.md](https://github.com/laojianzi/covergates/blob/main/web/README.md) for more details.
 
 ## Contributing
 
@@ -127,9 +127,9 @@ There are many ways in which you can participate in the project:
 1. Contributing directly to the code base
 
    The expected workflow is [GitHub flow](https://guides.github.com/introduction/flow/).
-   Read [CONTRIBUTING.md](https://github.com/covergates/covergates/blob/master/CONTRIBUTING.md) before getting start.
+   Read [CONTRIBUTING.md](https://github.com/laojianzi/covergates/blob/main/CONTRIBUTING.md) before getting start.
 
-2. [Submit feature requests and bugs](https://github.com/covergates/covergates/issues)
+2. [Submit feature requests and bugs](https://github.com/laojianzi/covergates/issues)
 
    Especially for the new language support.
    It would be great if you could provide coverage report examples and how to produce coverage for other languages.
@@ -142,11 +142,11 @@ For more information and tutorial about self-hosted Covergates server, please re
 
 ## Milestones
 
-Refer to [TODO.md](https://github.com/covergates/covergates/blob/master/TODO.md) for details.
+Refer to [TODO.md](https://github.com/laojianzi/covergates/blob/main/TODO.md) for details.
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0. See the [LICENSE](https://github.com/covergates/covergates/blob/master/LICENSE) file for the full license text.
+This project is licensed under the GNU General Public License v3.0. See the [LICENSE](https://github.com/laojianzi/covergates/blob/main/LICENSE) file for the full license text.
 
 ## Screenshots
 
