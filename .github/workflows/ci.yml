@@ -2,14 +2,44 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+    paths:
+      - '**.go'
+      - 'go.mod'
+      - '.golangci.yml'
+      - '.github/workflows/ci.yml'
+      - '.github/workflows/cd.yml'
   pull_request:
-    branches:
-      - main
+    paths:
+      - '**.go'
+      - 'go.mod'
+      - '.golangci.yml'
+      - '.github/workflows/ci.yml'
+      - '.github/workflows/cd.yml'
+
+env:
+  GOPROXY: "https://proxy.golang.org"
 
 jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Go Lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.43
+      - name: Frontend Lint
+        run: |
+          cd web
+          npm install
+          npm run lint -- --no-fix
+
   build:
+    needs:
+      - lint
     name: "${{ matrix.build_types }}"
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -38,14 +68,6 @@ jobs:
         with:
           go-version: 1.16
 
-      - name: Go Lint
-        if: env.BUILD_TYPE == 'BACKEND'
-        uses: golangci/golangci-lint-action@v2
-        with:
-          version: v1.43
-          skip-go-installation: true
-          args: -v
-
       - name: Go Test
         if: env.BUILD_TYPE == 'BACKEND'
         env:
@@ -67,12 +89,6 @@ jobs:
         run: |
           cd web
           npm install
-
-      - name: Frontend Lint
-        if: env.BUILD_TYPE == 'FRONTEND'
-        run: |
-          cd web
-          npm run lint -- --no-fix
 
       - name: Frontend Unit Test
         if: env.BUILD_TYPE == 'FRONTEND'
